@@ -1,0 +1,30 @@
+# Render 自動部署設定 — 一鍵 Blueprint
+# 推上 GitHub 後，在 Render 用 "New +" → "Blueprint" 選這個 repo，會自動讀取本檔。
+services:
+  - type: web
+    name: js-twins
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      # PORT 由 Render 自動分配（不要手動設定）
+      - key: AI_API_KEY
+        sync: false              # 部署時手動填入，避免機密進入 git
+      - key: AI_BASE_URL
+        value: https://generativelanguage.googleapis.com/v1beta/openai
+      - key: AI_MODEL
+        value: gemini-2.0-flash
+      - key: AI_FALLBACK_MODEL
+        value: gemini-1.5-flash
+      - key: GEMINI_VIDEO_MODEL
+        value: gemini-2.0-flash
+      - key: AUTH_SECRET
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false

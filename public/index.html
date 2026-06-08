@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JS_TWINS — 創作者工作室</title>
+  <meta name="description" content="JS_TWINS — 黑白電影感創作者平台。從劇本到分鏡、提示詞到翻譯，一站完成。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@100;300;500;800;900&family=Hanken+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="/js/guard.js"></script>
+</head>
+<body>
+  <!-- 氛圍層 -->
+  <canvas id="dust" aria-hidden="true"></canvas>
+  <div class="grid-lines" aria-hidden="true"><span></span><span></span><span></span></div>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <!-- 導覽 -->
+  <header class="nav">
+    <a class="brand" href="/">JS<span class="brand-u">_</span>TWINS</a>
+    <nav class="nav-links">
+      <a href="#tools">工具</a>
+      <a href="/admin/" id="nav-admin" style="display:none">邀請碼</a>
+      <a href="#" id="nav-logout">登出</a>
+      <a href="#tools" class="nav-enter">進入工作室</a>
+    </nav>
+    <button class="nav-dots" aria-label="選單"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></button>
+  </header>
+
+  <main>
+    <!-- ───────── HERO ───────── -->
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow reveal" style="--d:.1s">JS_TWINS · 創作者工作室</p>
+        <h1 class="hero-title">
+          <span class="thin reveal" style="--d:.18s">JS</span>
+          <span class="fat reveal" style="--d:.28s">TWINS</span><i class="dot reveal" style="--d:.5s">.</i>
+        </h1>
+        <p class="hero-sub reveal" style="--d:.42s">從劇本到分鏡、提示詞到翻譯 —— 一個電影感的創作工作室，六大工具，一站完成。</p>
+        <a class="cta reveal" href="#tools" style="--d:.54s">
+          <span class="cta-label">進入工作室</span>
+          <span class="cta-knob" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h12.5M12 6l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </a>
+      </div>
+
+      <div class="hero-visual reveal" style="--d:.3s" aria-hidden="true">
+        <div class="reel">
+          <span class="reel-mono">JST</span>
+          <span class="reel-ring"></span>
+          <span class="reel-ring r2"></span>
+        </div>
+      </div>
+
+      <div class="hero-foot reveal" style="--d:.7s">
+        <div class="hf-nav">
+          <button>◯ PREV</button>
+          <span class="idx">01 <i>/</i> 06</span>
+          <button>NEXT ◯</button>
+        </div>
+        <div class="social">
+          <a href="#" aria-label="Facebook">FB</a>
+          <a href="#" aria-label="Twitter">TW</a>
+          <a href="#" aria-label="Instagram">IG</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── HUB / 六大工具 ───────── -->
+    <section class="tools" id="tools">
+      <header class="tools-head">
+        <p class="eyebrow">@ TOOLS — 六大工具</p>
+        <h2>一個工作室，<br />六種創作。</h2>
+      </header>
+
+      <ul class="tool-list">
+        <li class="tool-row"><a href="/script-studio">
+          <span class="no">01</span>
+          <span class="t-main"><span class="t-name">劇本編輯室</span><em>Script Studio</em></span>
+          <span class="t-desc">發想 · 結構 · 分場 · 成稿 · 分鏡</span>
+          <span class="t-arrow">→</span>
+        </a></li>
+        <li class="tool-row"><a href="/prompt-vault">
+          <span class="no">02</span>
+          <span class="t-main"><span class="t-name">Prompt 整理</span><em>Prompt Vault</em></span>
+          <span class="t-desc">Midjourney × Nano Banana 提示詞庫</span>
+          <span class="t-arrow">→</span>
+        </a></li>
+        <li class="tool-row"><a href="/notebook">
+          <span class="no">03</span>
+          <span class="t-main"><span class="t-name">記事本</span><em>Notebook</em></span>
+          <span class="t-desc">會議紀錄 · 重點筆記</span>
+          <span class="t-arrow">→</span>
+        </a></li>
+        <li class="tool-row"><a href="/trailer-analysis">
+          <span class="no">04</span>
+          <span class="t-main"><span class="t-name">預告解析</span><em>Trailer Analysis</em></span>
+          <span class="t-desc">故事架構 · 鏡頭剪接 · 整體節奏</span>
+          <span class="t-arrow">→</span>
+        </a></li>
+        <li class="tool-row"><a href="/dialogue">
+          <span class="no">05</span>
+          <span class="t-main"><span class="t-name">台詞翻譯</span><em>Dialogue</em></span>
+          <span class="t-desc">中 → 英，口語化電影台詞</span>
+          <span class="t-arrow">→</span>
+        </a></li>
+        <li class="tool-row"><a href="/prompt-lab">
+          <span class="no">06</span>
+          <span class="t-main"><span class="t-name">提示詞優化</span><em>Prompt Lab</em></span>
+          <span class="t-desc">粗略想法 → 一鍵升級提示詞</span>
+          <span class="t-arrow">→</span>
+        </a></li>
+      </ul>
+    </section>
+
+    <section class="about" id="about">
+      <p class="eyebrow">@ ABOUT US</p>
+      <p class="about-lead">JS_TWINS 是一個把寫作、視覺、影像分析全部收在一起的創作者工作室。黑與白，只留下故事本身。</p>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span>JS_TWINS</span>
+    <span class="foot-mid">創作者工作室 · 2026</span>
+    <span class="foot-yr"></span>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

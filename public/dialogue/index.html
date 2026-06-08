@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>台詞翻譯 · JS_TWINS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;500;800;900&family=Hanken+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/tool.css" />
+  <script src="/js/guard.js"></script>
+</head>
+<body>
+  <header class="nav">
+    <a class="back" href="/">← JS_TWINS</a>
+    <span class="h-title">05 · Dialogue Translation</span>
+    <div class="h-right">
+      <span class="who" id="who"></span>
+      <span class="cloud" id="cloud">● 連線中…</span>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="hero">
+      <span class="no">05 / DIALOGUE</span>
+      <h1>台詞翻譯</h1>
+      <p>把中文台詞翻成<b style="color:#fff">真人會講</b>的口語英文 —— 縮寫、節奏、潛台詞都對，不是教科書翻譯。</p>
+    </div>
+
+    <section class="panel">
+      <label>中文台詞</label>
+      <textarea id="src" rows="8" placeholder="一行一句台詞。可以這樣寫：&#10;&#10;阿明：你又遲到了。&#10;小麗：（笑）我又不是你媽。"></textarea>
+      <label class="block">背景／角色／語氣（選填）</label>
+      <input id="ctx" type="text" placeholder="例如：黑色喜劇，阿明是嚴肅律師、小麗是叛逆酒保" />
+      <div class="actions">
+        <button id="go" class="btn primary">翻譯</button>
+        <span id="stat" class="stat"></span>
+      </div>
+    </section>
+
+    <div id="out" class="out empty">〉 翻譯結果會出現在這裡。</div>
+
+    <section class="history">
+      <h2>歷史翻譯（雲端共用）</h2>
+      <div class="h-list" id="hlist"></div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+  (function(){
+    var $=function(s){return document.querySelector(s);};
+    var cache=[];
+    function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+    function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('show');},1800);}
+
+    document.addEventListener('jstwins-auth',function(e){
+      $('#who').textContent='👤 '+e.detail.user;
+      $('#cloud').textContent='● 雲端已連線'; $('#cloud').classList.add('live');
+      loadHistory();
+    });
+
+    async function api(path,opts){
+      opts=opts||{}; opts.credentials='same-origin';
+      opts.headers=Object.assign({'Content-Type':'application/json'},opts.headers||{});
+      var r=await fetch(path,opts); var d=await r.json();
+      if(!r.ok) throw new Error(d.error||'HTTP '+r.status);
+      return d;
+    }
+
+    async function translate(){
+      var text=$('#src').value.trim();
+      var ctx=$('#ctx').value.trim();
+      if(!text){ toast('請貼中文台詞'); $('#src').focus(); return; }
+      var btn=$('#go'); btn.disabled=true; var stat=$('#stat');
+      stat.textContent='⏳ 翻譯中…';
+      $('#out').className='out empty'; $('#out').textContent='〉 思考中…';
+      try{
+        var d=await api('/api/dialogue',{ method:'POST', body: JSON.stringify({ text:text, context:ctx }) });
+        $('#out').className='out mono'; $('#out').textContent=d.text;
+        await api('/api/items',{ method:'POST', body: JSON.stringify({ kind:'dialogue', data:{ source:text, context:ctx, en:d.text } }) });
+        stat.textContent='✓ 完成並已儲存到雲端';
+        loadHistory();
+      }catch(e){ stat.textContent='❌ '+e.message; $('#out').className='out empty'; $('#out').textContent='〉 失敗：'+e.message; }
+      finally{ btn.disabled=false; }
+    }
+
+    async function loadHistory(){
+      try{
+        var d=await api('/api/items?kind=dialogue'); cache=d.items||[];
+        var box=$('#hlist');
+        if(!cache.length){ box.innerHTML='<div class="h-empty">還沒有翻譯紀錄。</div>'; return; }
+        box.innerHTML=cache.map(function(it){
+          var data=it.data||{};
+          var when=new Date(it.updated_at||it.created_at).toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+          var by=it.created_by?' · '+esc(it.created_by):'';
+          var snippet=(data.source||'').slice(0,80);
+          return '<div class="h-item" data-id="'+it.id+'">'+
+            '<div class="h-item-head"><span class="h-meta">'+when+by+'</span>'+
+            '<div class="h-acts"><button class="btn sm view">展開</button><button class="btn sm copy">⧉ 複製英文</button><button class="btn sm ghost danger del">刪除</button></div></div>'+
+            '<div class="h-body">'+esc(snippet)+(data.source&&data.source.length>80?'…':'')+'</div>'+
+          '</div>';
+        }).join('');
+        box.querySelectorAll('.view').forEach(function(b){ b.addEventListener('click',function(){
+          var id=b.closest('.h-item').dataset.id; var it=cache.find(function(x){return x.id===id;});
+          if(it){
+            $('#src').value=it.data.source||''; $('#ctx').value=it.data.context||'';
+            $('#out').className='out mono'; $('#out').textContent=it.data.en||'';
+            window.scrollTo({top:0,behavior:'smooth'});
+          }
+        }); });
+        box.querySelectorAll('.copy').forEach(function(b){ b.addEventListener('click',function(){
+          var id=b.closest('.h-item').dataset.id; var it=cache.find(function(x){return x.id===id;});
+          if(it) navigator.clipboard.writeText(it.data.en||'').then(function(){toast('⧉ 已複製英文');});
+        }); });
+        box.querySelectorAll('.del').forEach(function(b){ b.addEventListener('click',async function(){
+          if(!confirm('刪除這筆？')) return;
+          try{ var id=b.closest('.h-item').dataset.id; await api('/api/items/'+id,{method:'DELETE'}); loadHistory(); toast('已刪除'); }catch(e){ toast('❌ '+e.message); }
+        }); });
+      }catch(e){ $('#hlist').innerHTML='<div class="h-empty">載入失敗：'+esc(e.message)+'</div>'; }
+    }
+
+    $('#go').addEventListener('click',translate);
+  })();
+  </script>
+</body>
+</html>

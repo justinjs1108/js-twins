@@ -1,0 +1,26 @@
+{
+  "name": "js-twins",
+  "version": "0.1.0",
+  "description": "JS_TWINS — 黑白電影感創作者平台（劇本、Prompt、筆記、預告解析、台詞翻譯、提示詞優化）",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "creator",
+    "screenwriting",
+    "film",
+    "ai",
+    "prompt"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.107.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2"
+  }
+}

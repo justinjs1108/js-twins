@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>預告解析 · JS_TWINS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;500;800;900&family=Hanken+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/tool.css" />
+  <script src="/js/guard.js"></script>
+</head>
+<body>
+  <header class="nav">
+    <a class="back" href="/">← JS_TWINS</a>
+    <span class="h-title">04 · Trailer Analysis</span>
+    <div class="h-right">
+      <span class="who" id="who"></span>
+      <span class="cloud" id="cloud">● 連線中…</span>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="hero">
+      <span class="no">04 / TRAILER ANALYSIS</span>
+      <h1>預告解析</h1>
+      <p>貼一支 YouTube 預告片連結，AI 從劇本創作者的角度分析它的<b style="color:#fff">故事架構、鏡頭剪接、整體節奏</b>，再給你 3-5 個可以馬上偷學的招。</p>
+    </div>
+
+    <section class="panel">
+      <label>YouTube 連結</label>
+      <input id="url" type="url" inputmode="url" placeholder="https://www.youtube.com/watch?v=…" />
+      <div class="actions">
+        <button id="go" class="btn primary">執行分析</button>
+        <span id="stat" class="stat"></span>
+      </div>
+    </section>
+
+    <div id="out" class="out empty">〉 貼一個 YouTube 連結、按執行分析。AI 會看完整支影片再回答（通常 30 秒～2 分鐘）。</div>
+
+    <section class="history">
+      <h2>歷史分析（雲端共用）</h2>
+      <div class="h-list" id="hlist"></div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+  (function(){
+    var $=function(s){return document.querySelector(s);};
+    var cache=[];
+    function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+    function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('show');},1800);}
+
+    document.addEventListener('jstwins-auth',function(e){
+      $('#who').textContent='👤 '+e.detail.user;
+      $('#cloud').textContent='● 雲端已連線'; $('#cloud').classList.add('live');
+      loadHistory();
+    });
+
+    async function api(path,opts){
+      opts=opts||{}; opts.credentials='same-origin';
+      opts.headers=Object.assign({'Content-Type':'application/json'},opts.headers||{});
+      var r=await fetch(path,opts); var d=await r.json();
+      if(!r.ok) throw new Error(d.error||'HTTP '+r.status);
+      return d;
+    }
+
+    // 把 AI 的「【一、…】」段落渲染成有層次的 HTML
+    function render(text){
+      var html='';
+      text.split('\n').forEach(function(raw){
+        var line=raw;
+        var m=line.match(/^【(.+?)】\s*$/);
+        if(m){ html+='<h3>'+esc(m[1])+'</h3>'; return; }
+        if(!line.trim()){ html+='<br>'; return; }
+        // 簡易條列
+        if(/^\s*[-•*]\s+/.test(line)){
+          html+='<p>• '+esc(line.replace(/^\s*[-•*]\s+/,''))+'</p>';
+          return;
+        }
+        html+='<p>'+esc(line)+'</p>';
+      });
+      return html;
+    }
+
+    async function analyze(){
+      var url=$('#url').value.trim();
+      if(!url){ toast('請貼 YouTube 連結'); return; }
+      var btn=$('#go'); btn.disabled=true; var stat=$('#stat');
+      stat.textContent='⏳ 分析中（影片越長越久，最多 2 分鐘）…';
+      $('#out').className='out empty'; $('#out').textContent='〉 AI 正在看影片…';
+      try{
+        var d = await api('/api/trailer-analyze',{ method:'POST', body: JSON.stringify({ url:url }) });
+        $('#out').className='out'; $('#out').innerHTML=render(d.text);
+        // 雲端儲存
+        await api('/api/items',{ method:'POST', body: JSON.stringify({ kind:'trailer-analysis', data:{ url:url, text:d.text } }) });
+        stat.textContent='✓ 完成並已儲存到雲端';
+        loadHistory();
+      }catch(e){ stat.textContent='❌ '+e.message; $('#out').className='out empty'; $('#out').textContent='〉 失敗：'+e.message; }
+      finally{ btn.disabled=false; }
+    }
+
+    async function loadHistory(){
+      try{
+        var d=await api('/api/items?kind=trailer-analysis'); cache=d.items||[];
+        var box=$('#hlist');
+        if(!cache.length){ box.innerHTML='<div class="h-empty">還沒有分析過任何預告。</div>'; return; }
+        box.innerHTML=cache.map(function(it){
+          var data=it.data||{};
+          var when=new Date(it.updated_at||it.created_at).toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+          var by=it.created_by?' · '+esc(it.created_by):'';
+          var snippet=(data.text||'').slice(0,200);
+          return '<div class="h-item" data-id="'+it.id+'">'+
+            '<div class="h-item-head"><span class="h-meta">'+when+by+'　·　<a href="'+esc(data.url||'#')+'" target="_blank" rel="noopener" style="color:var(--text-2)">'+esc((data.url||'').slice(0,52))+'</a></span>'+
+            '<div class="h-acts"><button class="btn sm view">展開</button><button class="btn sm ghost danger del">刪除</button></div></div>'+
+            '<div class="h-body">'+esc(snippet)+(data.text&&data.text.length>200?'…':'')+'</div>'+
+          '</div>';
+        }).join('');
+        box.querySelectorAll('.view').forEach(function(b){ b.addEventListener('click',function(){ var id=b.closest('.h-item').dataset.id; var it=cache.find(function(x){return x.id===id;}); if(it){ $('#out').className='out'; $('#out').innerHTML=render(it.data.text||''); window.scrollTo({top:0,behavior:'smooth'}); }}); });
+        box.querySelectorAll('.del').forEach(function(b){ b.addEventListener('click',async function(){ if(!confirm('刪除這筆分析？')) return; try{ var id=b.closest('.h-item').dataset.id; await api('/api/items/'+id,{method:'DELETE'}); loadHistory(); toast('已刪除'); }catch(e){ toast('❌ '+e.message); } }); });
+      }catch(e){ $('#hlist').innerHTML='<div class="h-empty">載入失敗：'+esc(e.message)+'</div>'; }
+    }
+
+    $('#go').addEventListener('click',analyze);
+    $('#url').addEventListener('keydown',function(e){if(e.key==='Enter')analyze();});
+  })();
+  </script>
+</body>
+</html>

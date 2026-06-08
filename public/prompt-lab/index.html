@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>提示詞優化 · JS_TWINS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;500;800;900&family=Hanken+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/tool.css" />
+  <script src="/js/guard.js"></script>
+</head>
+<body>
+  <header class="nav">
+    <a class="back" href="/">← JS_TWINS</a>
+    <span class="h-title">06 · Prompt Lab</span>
+    <div class="h-right">
+      <span class="who" id="who"></span>
+      <span class="cloud" id="cloud">● 連線中…</span>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="hero">
+      <span class="no">06 / PROMPT LAB</span>
+      <h1>提示詞優化</h1>
+      <p>把你的<b style="color:#fff">粗略想法</b>變成一段可以直接貼上去用的提示詞，AI 會根據你選的目標工具（Midjourney、ChatGPT、Claude…）用對應的最佳結構。</p>
+    </div>
+
+    <section class="panel">
+      <label>目標 AI 工具</label>
+      <select id="tool">
+        <optgroup label="圖像 / Image">
+          <option>Midjourney</option>
+          <option>Nano Banana</option>
+          <option>DALL-E 3</option>
+          <option>Stable Diffusion</option>
+          <option>SeeDream</option>
+        </optgroup>
+        <optgroup label="影片 / Video">
+          <option>Sora</option>
+          <option>Runway Gen-3</option>
+          <option>Kling</option>
+          <option>Dream Machine (Luma)</option>
+          <option>Seedance</option>
+          <option>Higgsfield</option>
+        </optgroup>
+        <optgroup label="對話 / Chat">
+          <option>ChatGPT / GPT-5</option>
+          <option>Claude</option>
+          <option>Gemini</option>
+        </optgroup>
+        <optgroup label="程式 / Coding">
+          <option>Claude Code</option>
+          <option>Cursor</option>
+          <option>v0 / Bolt / Lovable</option>
+        </optgroup>
+        <optgroup label="3D / 語音 / 其他">
+          <option>Meshy / Tripo / Rodin (3D)</option>
+          <option>ElevenLabs (Voice)</option>
+          <option>其他</option>
+        </optgroup>
+      </select>
+
+      <label class="block">你的粗略想法</label>
+      <textarea id="idea" rows="6" placeholder="用你自己的話描述要做什麼。例如：&#10;&#10;一張賽博龐克下雨夜的街景，要有電影感、霓虹反光、女主角拿一把傘走進畫面深處。"></textarea>
+
+      <div class="actions">
+        <button id="go" class="btn primary">優化提示詞</button>
+        <span id="stat" class="stat"></span>
+      </div>
+    </section>
+
+    <div id="out" class="out empty">〉 優化後的提示詞會出現在這裡，可以一鍵複製。</div>
+    <div id="out-actions" class="actions hidden"><button id="copy" class="btn">⧉ 複製提示詞</button></div>
+
+    <section class="history">
+      <h2>歷史提示詞（雲端共用）</h2>
+      <div class="h-list" id="hlist"></div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+  (function(){
+    var $=function(s){return document.querySelector(s);};
+    var cache=[]; var lastText='';
+    function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+    function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('show');},1800);}
+
+    document.addEventListener('jstwins-auth',function(e){
+      $('#who').textContent='👤 '+e.detail.user;
+      $('#cloud').textContent='● 雲端已連線'; $('#cloud').classList.add('live');
+      loadHistory();
+    });
+
+    async function api(path,opts){
+      opts=opts||{}; opts.credentials='same-origin';
+      opts.headers=Object.assign({'Content-Type':'application/json'},opts.headers||{});
+      var r=await fetch(path,opts); var d=await r.json();
+      if(!r.ok) throw new Error(d.error||'HTTP '+r.status);
+      return d;
+    }
+
+    // 把 ```code``` 區塊高亮成 <pre>，其他保留行內格式
+    function render(text){
+      var parts = text.split(/```([\s\S]*?)```/g);
+      var html='';
+      parts.forEach(function(p,i){
+        if(i%2===1){ html += '<pre>'+esc(p.trim())+'</pre>'; }
+        else {
+          p.split('\n').forEach(function(line){
+            if(!line.trim()){ html+='<br>'; return; }
+            var m=line.match(/^【(.+?)】\s*$/);
+            if(m){ html+='<h3>'+esc(m[1])+'</h3>'; return; }
+            html += '<p>'+esc(line)+'</p>';
+          });
+        }
+      });
+      return html;
+    }
+
+    // 從 AI 輸出抽出 ```...``` 區塊內容（給「複製」鈕）
+    function extractPrompt(text){
+      var m = text.match(/```([\s\S]*?)```/);
+      return m ? m[1].trim() : text.trim();
+    }
+
+    async function optimize(){
+      var idea=$('#idea').value.trim();
+      var tool=$('#tool').value;
+      if(!idea){ toast('請寫下你的粗略想法'); $('#idea').focus(); return; }
+      var btn=$('#go'); btn.disabled=true; var stat=$('#stat');
+      stat.textContent='⏳ 優化中…';
+      $('#out').className='out empty'; $('#out').textContent='〉 思考中…'; $('#out-actions').classList.add('hidden');
+      try{
+        var d=await api('/api/prompt-lab',{ method:'POST', body: JSON.stringify({ idea:idea, tool:tool }) });
+        lastText=d.text;
+        $('#out').className='out'; $('#out').innerHTML=render(d.text); $('#out-actions').classList.remove('hidden');
+        await api('/api/items',{ method:'POST', body: JSON.stringify({ kind:'prompt-lab', data:{ idea:idea, tool:tool, text:d.text } }) });
+        stat.textContent='✓ 完成並已儲存到雲端';
+        loadHistory();
+      }catch(e){ stat.textContent='❌ '+e.message; $('#out').className='out empty'; $('#out').textContent='〉 失敗：'+e.message; }
+      finally{ btn.disabled=false; }
+    }
+
+    async function loadHistory(){
+      try{
+        var d=await api('/api/items?kind=prompt-lab'); cache=d.items||[];
+        var box=$('#hlist');
+        if(!cache.length){ box.innerHTML='<div class="h-empty">還沒有任何優化紀錄。</div>'; return; }
+        box.innerHTML=cache.map(function(it){
+          var data=it.data||{};
+          var when=new Date(it.updated_at||it.created_at).toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+          var by=it.created_by?' · '+esc(it.created_by):'';
+          var head=esc((data.tool||'')+' · '+(data.idea||'').slice(0,60))+((data.idea||'').length>60?'…':'');
+          return '<div class="h-item" data-id="'+it.id+'">'+
+            '<div class="h-item-head"><span class="h-meta">'+when+by+'　·　'+head+'</span>'+
+            '<div class="h-acts"><button class="btn sm view">展開</button><button class="btn sm copy">⧉ 複製</button><button class="btn sm ghost danger del">刪除</button></div></div>'+
+          '</div>';
+        }).join('');
+        box.querySelectorAll('.view').forEach(function(b){ b.addEventListener('click',function(){
+          var id=b.closest('.h-item').dataset.id; var it=cache.find(function(x){return x.id===id;});
+          if(it){ lastText=it.data.text||''; $('#out').className='out'; $('#out').innerHTML=render(lastText); $('#out-actions').classList.remove('hidden'); $('#idea').value=it.data.idea||''; window.scrollTo({top:0,behavior:'smooth'}); }
+        }); });
+        box.querySelectorAll('.copy').forEach(function(b){ b.addEventListener('click',function(){
+          var id=b.closest('.h-item').dataset.id; var it=cache.find(function(x){return x.id===id;});
+          if(it) navigator.clipboard.writeText(extractPrompt(it.data.text||'')).then(function(){toast('⧉ 已複製提示詞');});
+        }); });
+        box.querySelectorAll('.del').forEach(function(b){ b.addEventListener('click',async function(){
+          if(!confirm('刪除這筆？')) return;
+          try{ var id=b.closest('.h-item').dataset.id; await api('/api/items/'+id,{method:'DELETE'}); loadHistory(); toast('已刪除'); }catch(e){ toast('❌ '+e.message); }
+        }); });
+      }catch(e){ $('#hlist').innerHTML='<div class="h-empty">載入失敗：'+esc(e.message)+'</div>'; }
+    }
+
+    $('#go').addEventListener('click',optimize);
+    $('#copy').addEventListener('click',function(){
+      if(!lastText){ toast('沒有可複製的內容'); return; }
+      navigator.clipboard.writeText(extractPrompt(lastText)).then(function(){toast('⧉ 已複製提示詞');});
+    });
+  })();
+  </script>
+</body>
+</html>

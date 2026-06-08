@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>劇本編輯室 · JS_TWINS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;500;800;900&family=Hanken+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="studio.css" />
+  <script src="/js/guard.js"></script>
+</head>
+<body>
+  <canvas id="dust" aria-hidden="true"></canvas>
+  <div class="grid-lines" aria-hidden="true"><span></span><span></span><span></span></div>
+  <div class="vignette" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <header class="nav">
+    <a class="back" href="/">← JS_TWINS</a>
+    <span class="h-title">01 · Script Studio</span>
+    <span id="who" class="badge" style="background:none"></span>
+    <span id="ai-badge" class="badge">● 連線中…</span>
+  </header>
+
+  <main class="wrap">
+    <div class="hero">
+      <span class="no">01 / SCRIPT STUDIO</span>
+      <h1>劇本編輯室</h1>
+      <p>五個步驟，把一句話的點子，長成一部劇本。</p>
+    </div>
+
+    <!-- 專案設定 -->
+    <section class="panel setup">
+      <h2>專案設定</h2>
+      <div class="grid2">
+        <label>片名<input id="title" type="text" placeholder="暫定片名，可留空" /></label>
+        <label>片長 / 形式<select id="format"></select></label>
+      </div>
+      <label class="block">類型（可複選）<div id="genres" class="chips"></div></label>
+      <label class="block">你的初始想法<textarea id="idea" rows="2" placeholder="一句話、一個畫面、一種感覺都可以。例如：一台只在午夜運作的電梯。"></textarea></label>
+      <label class="block">選定的故事前提 Logline<textarea id="logline" rows="2" placeholder="發想完，把你最愛的那句一句話前提貼這裡，後續步驟會以它為主軸。"></textarea></label>
+      <div class="setup-actions">
+        <button id="export-btn" class="btn">匯出整份劇本</button>
+        <button id="reset-btn" class="btn ghost danger">清空專案</button>
+      </div>
+    </section>
+
+    <!-- 五步驟 -->
+    <nav class="stepper" id="stepper">
+      <button class="step" data-stage="brainstorm"><span class="s-no">01</span><span class="s-name">發想</span></button>
+      <button class="step" data-stage="structure"><span class="s-no">02</span><span class="s-name">結構</span></button>
+      <button class="step" data-stage="scenes"><span class="s-no">03</span><span class="s-name">分場</span></button>
+      <button class="step" data-stage="screenplay"><span class="s-no">04</span><span class="s-name">成稿</span></button>
+      <button class="step" data-stage="shooting"><span class="s-no">05</span><span class="s-name">分鏡</span></button>
+    </nav>
+
+    <!-- 目前步驟 -->
+    <section class="panel stage">
+      <div class="stage-head">
+        <h2 id="stage-title"></h2>
+        <p id="stage-desc" class="hint"></p>
+      </div>
+
+      <div id="structure-picker" class="hidden">
+        <label class="block">選擇結構模板<select id="structure-select"></select></label>
+        <div id="structure-info" class="structure-info"></div>
+        <div class="movie-analyze">
+          <label class="block">或：丟一部電影，讓 AI 分析它的結構來參照<textarea id="movie-input" rows="2" placeholder="輸入一或多部電影（用頓號或換行分隔），例如：寄生上流、記憶拼圖"></textarea></label>
+          <button id="analyze-btn" class="btn">分析電影結構並套用</button>
+          <span id="analyze-status" class="stat"></span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="generate-btn" class="btn primary">執行生成</button>
+        <button id="edit-btn" class="btn ghost">編輯</button>
+        <button id="copy-btn" class="btn ghost">複製</button>
+        <span id="stage-status" class="stat"></span>
+      </div>
+
+      <div id="result-view" class="result-view"></div>
+      <textarea id="result" class="result hidden" rows="16" placeholder="生成的內容會出現在這裡。"></textarea>
+
+      <div class="step-nav">
+        <button id="prev-page" class="btn ghost">‹ 上一步</button>
+        <button id="next-page" class="btn">下一步 ›</button>
+      </div>
+    </section>
+
+    <!-- 我的劇本 -->
+    <section class="panel saves">
+      <h2>我的劇本</h2>
+      <div class="saves-bar">
+        <input id="save-name" type="text" placeholder="幫這個劇本命名（例如：午夜電梯 v1）" />
+        <button id="save-current" class="btn primary">儲存目前劇本</button>
+        <span id="saves-status" class="stat"></span>
+      </div>
+      <div id="scripts-list" class="scripts-list"></div>
+    </section>
+  </main>
+
+  <!-- AI 助手 -->
+  <button id="assist-toggle" class="assist-toggle">AI 助手</button>
+  <aside id="assist-panel" class="assist-panel hidden">
+    <div class="assist-head"><span>AI 助手</span><button id="assist-close" class="btn sm ghost">✕</button></div>
+    <div class="assist-intro">針對你「目前步驟」的內容，幫你 <b>改寫</b> 或 <b>分析</b>。例如：加一個反轉、加強對白、分析角色動機、指出缺點。</div>
+    <div class="assist-quick">
+      <button class="qchip" data-mode="rewrite" data-ins="幫我把開場寫得更有鉤子、更抓人">寫開場</button>
+      <button class="qchip" data-mode="rewrite" data-ins="加強這段的對白，讓潛台詞更豐富、更自然">加強對白</button>
+      <button class="qchip" data-mode="rewrite" data-ins="改寫這段，讓畫面更有電影感、衝突更明確">改寫場景</button>
+      <button class="qchip" data-mode="analyze" data-ins="分析主要角色的動機、慾望與致命缺陷是否清楚有力">角色分析</button>
+      <button class="qchip" data-mode="analyze" data-ins="分析這份內容的結構與節奏的優缺點，並給我具體改進建議">優缺點分析</button>
+    </div>
+    <div class="assist-restructure">
+      <div class="assist-sub">用新結構重寫：</div>
+      <div id="assist-structs" class="assist-struct-chips"></div>
+    </div>
+    <div id="assist-messages" class="assist-messages"></div>
+    <div class="assist-input">
+      <textarea id="assist-text" rows="2" placeholder="跟 AI 說：幫我重寫這場戲、加一個反轉、分析角色動機……"></textarea>
+      <div class="assist-send-row">
+        <button id="assist-analyze" class="btn sm">分析</button>
+        <button id="assist-rewrite" class="btn sm primary">改寫</button>
+      </div>
+    </div>
+  </aside>
+
+  <script src="app.js"></script>
+</body>
+</html>
