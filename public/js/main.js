@@ -85,4 +85,22 @@
       visual.style.transform = 'translate(' + (x * 18).toFixed(1) + 'px,' + (y * 14).toFixed(1) + 'px)';
     }, { passive: true });
   }
+
+  // HERO LOOP 影片：載好淡入；滾出第一屏就把影片淡掉、把畫面交回內容
+  const hv = document.getElementById('hero-video');
+  if (hv) {
+    hv.addEventListener('canplay', () => hv.classList.add('ready'), { once: true });
+    // 如果已經是 ready 狀態（從快取）
+    if (hv.readyState >= 2) hv.classList.add('ready');
+    let scrolled = false;
+    window.addEventListener('scroll', () => {
+      const past = window.scrollY > window.innerHeight * 0.6;
+      if (past !== scrolled) {
+        scrolled = past;
+        document.body.classList.toggle('scrolled', scrolled);
+        if (scrolled) { try { hv.pause(); } catch (e) {} }
+        else { try { hv.play(); } catch (e) {} }
+      }
+    }, { passive: true });
+  }
 })();

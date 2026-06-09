@@ -9,11 +9,15 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@100;300;500;800;900&family=Hanken+Grotesk:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="/css/bg-cyber.css" />
-  <script src="/js/bg-cyber.js"></script>
   <script src="/js/guard.js"></script>
 </head>
 <body>
+  <!-- 封面 LOOP 背景影片（只在首頁）-->
+  <video id="hero-video" autoplay muted loop playsinline preload="auto" poster="/assets/hero-poster.jpg">
+    <source src="/assets/hero.mp4" type="video/mp4" />
+  </video>
+  <div id="hero-veil" aria-hidden="true"></div>
+
   <!-- 氛圍層 -->
   <canvas id="dust" aria-hidden="true"></canvas>
   <div class="grid-lines" aria-hidden="true"><span></span><span></span><span></span></div>
@@ -43,11 +47,7 @@
         <span class="meta-num">MMXXVI</span>
       </div>
 
-      <div class="hero-copy">
-        <h1 class="hero-title">
-          <span class="thin reveal" style="--d:.18s">JS</span>
-          <span class="fat reveal" style="--d:.28s">TWINS</span><i class="dot reveal" style="--d:.5s">.</i>
-        </h1>
+      <div class="hero-copy hero-copy-video">
         <p class="hero-lede reveal" style="--d:.42s">
           一個<i>會說故事</i>的工作室。<br />
           從劇本到分鏡、提示詞到翻譯 —— <span class="lede-em">六個工具，一站完成。</span>
@@ -58,14 +58,6 @@
             <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h12.5M12 6l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </span>
         </a>
-      </div>
-
-      <div class="hero-visual reveal" style="--d:.3s" aria-hidden="true">
-        <div class="reel">
-          <span class="reel-mono">JST</span>
-          <span class="reel-ring"></span>
-          <span class="reel-ring r2"></span>
-        </div>
       </div>
 
       <div class="hero-foot reveal" style="--d:.7s">
