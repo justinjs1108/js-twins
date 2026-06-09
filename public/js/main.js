@@ -10,7 +10,11 @@
     if (e.detail.isAdmin) { const a = document.getElementById('nav-admin'); if (a) a.style.display = ''; }
   });
   const logout = document.getElementById('nav-logout');
-  if (logout) logout.addEventListener('click', (ev) => { ev.preventDefault(); fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' }).then(() => location.href = '/login/'); });
+  if (logout) logout.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    try { localStorage.removeItem('jst-code'); } catch (e) {}
+    fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' }).then(() => location.href = '/login/');
+  });
 
   // 頁尾年份
   const yr = document.querySelector('.foot-yr');

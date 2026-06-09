@@ -160,7 +160,10 @@
     }
     $('#add').addEventListener('click',addCode);
     $('#label').addEventListener('keydown',function(e){if(e.key==='Enter')addCode();});
-    $('#logout').addEventListener('click',function(){ fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'}).then(function(){ location.href='/login/'; }); });
+    $('#logout').addEventListener('click',function(){
+      try{ localStorage.removeItem('jst-code'); }catch(e){}
+      fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'}).then(function(){ location.href='/login/'; });
+    });
   })();
   </script>
 </body>
