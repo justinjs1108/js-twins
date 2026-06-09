@@ -23,6 +23,7 @@
     <a class="brand" href="/">JS<span class="brand-u">_</span>TWINS</a>
     <nav class="nav-links">
       <a href="#tools">工具</a>
+      <a href="#about">關於</a>
       <a href="/admin/" id="nav-admin" style="display:none">邀請碼</a>
       <a href="#" id="nav-logout">登出</a>
       <a href="#tools" class="nav-enter">進入工作室</a>
@@ -31,56 +32,86 @@
   </header>
 
   <main>
-    <!-- ───────── HERO ───────── -->
-    <section class="hero">
-      <div class="hero-meta reveal" style="--d:.08s">
-        <span class="meta-num">N° 001</span>
-        <span class="meta-dot">·</span>
-        <span class="meta-tag">創作者工作室 / CREATOR STUDIO</span>
-        <span class="meta-dot">·</span>
-        <span class="meta-num">MMXXVI</span>
+    <!-- ───────── 電影感 HERO ───────── -->
+    <section class="hero hero-cinema">
+      <!-- 放射光環 -->
+      <div class="cinema-ring" aria-hidden="true">
+        <span></span><span></span>
+      </div>
+      <!-- 水平光束（lens flare）-->
+      <div class="cinema-beam" aria-hidden="true"></div>
+
+      <!-- 四角浮動座標標籤 -->
+      <div class="float-label fl-tl reveal" style="--d:.5s">
+        <span class="fl-dot"></span>
+        <div class="fl-text"><span class="fl-name">劇本</span><span class="fl-num">[ 001 ]</span></div>
+      </div>
+      <div class="float-label fl-tr reveal" style="--d:.55s">
+        <div class="fl-text right"><span class="fl-name">Prompt</span><span class="fl-num">[ 002 ]</span></div>
+        <span class="fl-dot"></span>
+      </div>
+      <div class="float-label fl-bl reveal" style="--d:.62s">
+        <span class="fl-dot"></span>
+        <div class="fl-text"><span class="fl-name">解析</span><span class="fl-num">[ 004 ]</span></div>
+      </div>
+      <div class="float-label fl-br reveal" style="--d:.68s">
+        <div class="fl-text right"><span class="fl-name">翻譯</span><span class="fl-num">[ 005 ]</span></div>
+        <span class="fl-dot"></span>
       </div>
 
-      <div class="hero-copy">
-        <h1 class="hero-title">
-          <span class="thin reveal" style="--d:.18s">JS</span>
-          <span class="fat reveal" style="--d:.28s">TWINS</span><i class="dot reveal" style="--d:.5s">.</i>
+      <!-- 中央內容 -->
+      <div class="cinema-center">
+        <div class="cinema-meta reveal" style="--d:.1s">
+          <span class="meta-mark"></span>
+          <span class="meta-tag">會說故事的工作室 / STORYTELLING TOOLKIT</span>
+          <span class="meta-mark"></span>
+        </div>
+
+        <h1 class="cinema-title reveal" style="--d:.22s">
+          <span class="thin">JS</span>
+          <span class="fat">TWINS</span><i class="dot">.</i>
         </h1>
-        <p class="hero-lede reveal" style="--d:.42s">
-          一個<i>會說故事</i>的工作室。<br />
-          從劇本到分鏡、提示詞到翻譯 —— <span class="lede-em">六個工具，一站完成。</span>
+
+        <p class="cinema-lede reveal" style="--d:.36s">
+          從劇本到分鏡，從提示詞到翻譯 —— <i>一個</i> 會說故事的工作室。
         </p>
-        <a class="cta reveal" href="#tools" style="--d:.54s">
-          <span class="cta-label">進入工作室</span>
-          <span class="cta-knob" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h12.5M12 6l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </span>
-        </a>
-      </div>
 
-      <div class="hero-visual reveal" style="--d:.3s" aria-hidden="true">
-        <div class="reel">
-          <span class="reel-mono">JST</span>
-          <span class="reel-ring"></span>
-          <span class="reel-ring r2"></span>
+        <div class="cinema-ctas reveal" style="--d:.48s">
+          <a class="cta-pill primary" href="#tools">
+            <span class="cta-icn">▶</span>
+            <span>進入工作室</span>
+          </a>
+          <a class="cta-pill ghost" href="#about">
+            了解更多
+          </a>
         </div>
       </div>
 
-      <div class="hero-foot reveal" style="--d:.7s">
-        <div class="hf-nav">
-          <span class="idx-label">CHAPTER</span>
-          <span class="idx">01 <i>/</i> 06</span>
+      <!-- 底部 -->
+      <div class="cinema-foot reveal" style="--d:.72s">
+        <div class="cf-left">
+          <span class="cf-num">[ 001 / SCROLL DOWN ]</span>
         </div>
-        <div class="hero-credit"><i>directed by</i> JS TWINS</div>
+        <div class="cf-mid">
+          <span class="cf-dash"></span>
+          <i class="cf-mid-credit">directed by</i> JS TWINS
+          <span class="cf-dash"></span>
+        </div>
+        <div class="cf-right">
+          <span class="cf-num">MMXXVI</span>
+        </div>
       </div>
     </section>
 
-    <!-- ───────── HUB / 六大工具 ───────── -->
-    <section class="tools" id="tools">
-      <header class="tools-head">
-        <p class="eyebrow">@ TOOLS · INDEX</p>
-        <h2>一個工作室，<br /><i>六種</i>創作。</h2>
-        <p class="tools-sub">每一個工具，都是為了讓你<br /><i>少做一件雜事、多寫一句台詞。</i></p>
+    <!-- ───────── 工具畫廊 ───────── -->
+    <section class="tools tools-gallery" id="tools">
+      <header class="gallery-head">
+        <div class="gh-left">
+          <span class="gh-num">06</span>
+          <span class="gh-label">TOOLS · INDEX</span>
+        </div>
+        <h2 class="gh-title">一個工作室，<br /><i>六種</i>創作。</h2>
+        <p class="gh-sub"><i>少做一件雜事，<br />多寫一句台詞。</i></p>
       </header>
 
       <ul class="tool-list">
@@ -121,6 +152,10 @@
           <span class="t-arrow">→</span>
         </a></li>
       </ul>
+
+      <div class="gallery-foot">
+        <a class="cta-pill ghost small" href="/script-studio">EXPLORE MORE →</a>
+      </div>
     </section>
 
     <section class="about" id="about">

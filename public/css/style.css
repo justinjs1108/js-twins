@@ -285,6 +285,247 @@ a { color: inherit; }
 .foot span:first-child { color: #fff; font-family: var(--font-display); font-weight: 900; }
 .foot-mid i { font-family: var(--font-serif); font-style: italic; color: #fff; font-size: 1.25em; letter-spacing: 0; text-transform: none; margin-right: 2px; }
 
+/* ╔══════════════════════════════════════════════════════════════╗
+   電影感升級 — HERO 中央構圖（放射光環 + 水平光束 + 四角座標）
+   ╚══════════════════════════════════════════════════════════════╝ */
+.hero-cinema {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  position: relative; min-height: 100svh; isolation: isolate;
+  padding: 130px var(--pad-x) 60px;
+  overflow: hidden;
+}
+.hero-cinema .hero-meta,
+.hero-cinema .hero-copy,
+.hero-cinema .hero-visual,
+.hero-cinema .hero-foot { display: none; } /* 用新版 */
+
+/* ── 放射光環：兩個淡光環緩慢呼吸 ── */
+.cinema-ring {
+  position: absolute; left: 50%; top: 52%; transform: translate(-50%, -50%);
+  width: clamp(680px, 92vmin, 1300px); aspect-ratio: 1; z-index: -1; pointer-events: none;
+  animation: ringBreathe 8s ease-in-out infinite alternate;
+}
+.cinema-ring span {
+  position: absolute; inset: 0; border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background:
+    radial-gradient(circle, transparent 56%, rgba(255,255,255,0.025) 64%, transparent 72%),
+    radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 50%);
+}
+.cinema-ring span:nth-child(2) {
+  inset: 18%; border-color: rgba(255, 255, 255, 0.04);
+  background: radial-gradient(circle, rgba(255,255,255,0.025) 0%, transparent 60%);
+  animation: ringSpin 80s linear infinite;
+}
+.cinema-ring::before, .cinema-ring::after {
+  content: ''; position: absolute; inset: -22%; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.025); pointer-events: none;
+}
+.cinema-ring::after { inset: -42%; border-color: rgba(255,255,255,0.014); }
+@keyframes ringBreathe { from { opacity: .55; } to { opacity: .9; } }
+@keyframes ringSpin { to { transform: rotate(360deg); } }
+
+/* ── 水平光束（lens flare）── */
+.cinema-beam {
+  position: absolute; left: 0; right: 0; top: 50%; height: 1px;
+  z-index: -1; pointer-events: none; opacity: .9;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,255,255,0) 18%,
+    rgba(255,255,255,0.35) 38%,
+    rgba(255,255,255,0.85) 50%,
+    rgba(255,255,255,0.35) 62%,
+    rgba(255,255,255,0) 82%,
+    transparent 100%);
+  box-shadow: 0 0 22px 1px rgba(255,255,255,0.4);
+}
+.cinema-beam::before, .cinema-beam::after {
+  content: ''; position: absolute; top: 50%; transform: translateY(-50%);
+  width: clamp(120px, 18vw, 240px); height: 80px;
+  background: radial-gradient(ellipse at center, rgba(255,255,255,0.55), transparent 60%);
+  pointer-events: none; filter: blur(8px);
+}
+.cinema-beam::before { left: 12%; }
+.cinema-beam::after { right: 12%; }
+
+/* ── 中央內容 ── */
+.cinema-center { position: relative; text-align: center; z-index: 2; max-width: 880px; }
+
+.cinema-meta {
+  display: inline-flex; align-items: center; gap: 14px;
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.32em;
+  text-transform: uppercase; color: var(--text-2);
+  margin-bottom: 36px;
+}
+.cinema-meta .meta-mark { width: 22px; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent); }
+
+.cinema-title {
+  font-family: var(--font-display); line-height: 0.88; letter-spacing: -0.035em;
+  font-size: clamp(74px, 16vw, 230px); margin: 0;
+  display: inline-flex; align-items: baseline; gap: 0.14em;
+}
+.cinema-title .thin { font-weight: 100; color: rgba(255,255,255,0.62); }
+.cinema-title .fat { font-weight: 900; color: #fff; }
+.cinema-title .dot { font-weight: 900; color: #fff; margin-left: -0.06em; font-style: normal; }
+
+.cinema-lede {
+  margin: 30px auto 0; max-width: 540px;
+  font-family: var(--font-body); font-size: clamp(16px, 1.45vw, 19px);
+  line-height: 1.6; color: var(--text-2);
+}
+.cinema-lede i {
+  font-family: var(--font-serif); font-style: italic; font-weight: 400;
+  color: #fff; font-size: 1.12em;
+}
+
+.cinema-ctas {
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  margin-top: 44px; flex-wrap: wrap;
+}
+
+/* ── 膠囊按鈕（雙版本：實心鉻金屬 + 透明邊框）── */
+.cta-pill {
+  display: inline-flex; align-items: center; gap: 12px;
+  padding: 13px 26px; border-radius: 999px;
+  font-family: var(--font-mono); font-size: 12.5px; letter-spacing: 0.18em;
+  text-transform: uppercase; text-decoration: none; cursor: pointer;
+  position: relative; isolation: isolate;
+  transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease), color 0.25s, background 0.35s;
+}
+.cta-pill.primary {
+  color: #ededf0;
+  background: linear-gradient(180deg, #202024 0%, #0c0c0e 55%, #050506 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.16),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.85),
+    0 14px 34px rgba(0, 0, 0, 0.6);
+}
+.cta-pill.primary:hover {
+  transform: translateY(-2px); color: #fff;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.22),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.85),
+    0 22px 48px rgba(0, 0, 0, 0.7),
+    0 0 28px rgba(255, 255, 255, 0.12);
+}
+.cta-pill .cta-icn {
+  width: 22px; height: 22px; flex: none; border-radius: 50%;
+  display: grid; place-items: center; font-size: 9px; color: #fff;
+  background: radial-gradient(circle at 30% 25%, #2a2a2e, #050506 75%);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.25), inset 0 -2px 4px rgba(0,0,0,0.9);
+  position: relative;
+}
+.cta-pill .cta-icn::before {
+  content: ''; position: absolute; inset: -1px; border-radius: 50%; padding: 1.2px;
+  background: conic-gradient(from 130deg, #ffffff, #6c6c72, #f4f4f6, #232327, #dadade, #5a5a61, #ffffff);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  animation: chromeSpin 7s linear infinite;
+}
+.cta-pill.primary:hover .cta-icn::before { animation-duration: 2.2s; }
+
+.cta-pill.ghost {
+  color: var(--text-2);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+.cta-pill.ghost:hover {
+  color: #fff; border-color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: 0 0 24px rgba(255,255,255,0.08);
+}
+.cta-pill.small { padding: 10px 20px; font-size: 11px; letter-spacing: 0.22em; }
+
+/* ── 四角浮動座標標籤 ── */
+.float-label {
+  position: absolute; z-index: 1;
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--font-mono); color: var(--text-2);
+}
+.float-label .fl-dot {
+  width: 9px; height: 9px; border-radius: 50%; flex: none;
+  border: 1px solid rgba(255,255,255,0.5); position: relative;
+}
+.float-label .fl-dot::after {
+  content: ''; position: absolute; inset: 2px; border-radius: 50%; background: #fff;
+  box-shadow: 0 0 10px rgba(255,255,255,0.7);
+  animation: dotPulse 3s ease-in-out infinite;
+}
+@keyframes dotPulse { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+.float-label .fl-text { display: flex; flex-direction: column; gap: 2px; line-height: 1; }
+.float-label .fl-text.right { align-items: flex-end; }
+.float-label .fl-name { font-size: 11.5px; letter-spacing: 0.16em; color: #fff; text-transform: uppercase; }
+.float-label .fl-num { font-size: 10px; letter-spacing: 0.22em; color: var(--muted); }
+
+.fl-tl { top: 18%; left: clamp(20px, 6vw, 80px); }
+.fl-tr { top: 18%; right: clamp(20px, 6vw, 80px); }
+.fl-bl { bottom: 22%; left: clamp(20px, 6vw, 80px); }
+.fl-br { bottom: 22%; right: clamp(20px, 6vw, 80px); }
+
+/* ── HERO 底部資訊條 ── */
+.cinema-foot {
+  position: absolute; left: var(--pad-x); right: var(--pad-x); bottom: 28px; z-index: 2;
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px;
+  padding-top: 22px; border-top: 1px solid var(--line-soft);
+}
+.cinema-foot .cf-left { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.22em; color: var(--muted); }
+.cinema-foot .cf-right { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.32em; color: var(--muted); text-align: right; }
+.cinema-foot .cf-mid {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.22em; color: var(--text-2);
+  text-transform: uppercase;
+}
+.cinema-foot .cf-mid-credit { font-family: var(--font-serif); font-style: italic; font-size: 1.45em; color: #fff; text-transform: none; letter-spacing: 0; }
+.cinema-foot .cf-dash { width: 28px; height: 1px; background: rgba(255,255,255,0.25); }
+
+/* ╔══════════════════════════════════════════════════════════════╗
+   工具畫廊 — 大編號 + 編輯式清單
+   ╚══════════════════════════════════════════════════════════════╝ */
+.tools-gallery .gallery-head {
+  display: grid; grid-template-columns: 1fr auto; align-items: end;
+  gap: 30px 60px; margin-bottom: clamp(40px, 6vw, 80px);
+}
+.tools-gallery .gallery-head > * { all: unset; }
+.tools-gallery .gh-left {
+  grid-column: 1 / 2; grid-row: 1 / 2;
+  display: flex; align-items: baseline; gap: 18px;
+  font-family: var(--font-mono); color: var(--muted);
+}
+.tools-gallery .gh-num {
+  font-family: var(--font-display); font-weight: 100; font-size: clamp(70px, 9vw, 140px);
+  line-height: 1; letter-spacing: -0.04em; color: #fff;
+}
+.tools-gallery .gh-label { font-size: 11px; letter-spacing: 0.34em; text-transform: uppercase; }
+.tools-gallery .gh-title {
+  grid-column: 1 / 2; grid-row: 2 / 3;
+  font-family: var(--font-display); font-weight: 200;
+  font-size: clamp(36px, 5.4vw, 78px); line-height: 1; letter-spacing: -0.025em; color: #fff;
+  display: block;
+}
+.tools-gallery .gh-title i { font-family: var(--font-serif); font-style: italic; font-weight: 400; font-size: 1.08em; }
+.tools-gallery .gh-sub {
+  grid-column: 2 / 3; grid-row: 2 / 3;
+  align-self: end; text-align: right; max-width: 320px;
+  font-family: var(--font-body); color: var(--text-2);
+  font-size: clamp(14px, 1.05vw, 16px); line-height: 1.55;
+}
+.tools-gallery .gh-sub i { font-family: var(--font-serif); font-style: italic; color: #fff; font-size: 1.18em; }
+
+.gallery-foot {
+  display: flex; justify-content: center; padding-top: 28px;
+  border-top: 1px solid var(--line); margin-top: clamp(28px, 4vw, 50px);
+}
+
+/* 響應式 */
+@media (max-width: 900px) {
+  .float-label { display: none; }
+  .cinema-foot { grid-template-columns: 1fr; text-align: center; gap: 6px; padding-top: 16px; bottom: 18px; }
+  .cinema-foot .cf-right { text-align: center; }
+  .tools-gallery .gallery-head { grid-template-columns: 1fr; gap: 18px; }
+  .tools-gallery .gh-sub { grid-column: 1 / -1; grid-row: auto; text-align: left; }
+}
+
 /* ───────── 進場動畫 ───────── */
 @keyframes reveal { from { opacity: 0; transform: translateY(28px); filter: blur(8px); } to { opacity: 1; transform: none; filter: none; } }
 .reveal { opacity: 0; animation: reveal 0.95s var(--ease) forwards; animation-delay: var(--d, 0s); }
