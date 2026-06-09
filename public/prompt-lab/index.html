@@ -12,6 +12,33 @@
   <script src="/js/bg-cyber.js"></script>
   <script src="/js/guard.js"></script>
   <script src="/js/img.js"></script>
+  <style>
+    .editing-flag{font-family:var(--fm);font-size:11.5px;letter-spacing:.1em;color:var(--muted);flex:1}
+    .ref-box{position:relative;width:200px;height:200px;border-radius:12px;border:1.5px dashed var(--line);background:rgba(0,0,0,.35);display:grid;place-items:center;cursor:pointer;overflow:hidden;flex:none;transition:border-color .2s}
+    .ref-box:hover{border-color:rgba(255,255,255,.45)}
+    .ref-box img{width:100%;height:100%;object-fit:cover}
+    .ref-box .ph{font-family:var(--fm);font-size:12px;color:var(--muted);letter-spacing:.1em;text-align:center;line-height:1.6}
+    .ref-rm{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.75);border:1px solid var(--line);color:#fff;font-size:14px;cursor:pointer;display:none;align-items:center;justify-content:center}
+    .ref-box.has .ref-rm{display:flex}
+    .ref-box.has .ph{display:none}
+    .ref-row{display:flex;gap:18px;align-items:flex-start;margin-top:14px}
+    .ref-tip{font-family:var(--fm);font-size:11.5px;color:var(--muted);line-height:1.7;letter-spacing:.04em}
+
+    .imgnotes{font-family:var(--fb);background:rgba(0,0,0,.36);border:1px solid var(--line);border-left:3px solid #fff;border-radius:8px;padding:14px 18px;margin-bottom:18px;color:var(--text-2);font-size:13.5px;line-height:1.75}
+    .imgnotes b{color:#fff;font-family:var(--fd);font-weight:800;letter-spacing:.06em;font-size:11.5px;text-transform:uppercase;display:block;margin-bottom:4px}
+
+    .vargrid{display:grid;gap:16px;grid-template-columns:1fr;margin-top:8px}
+    @media(min-width:980px){.vargrid{grid-template-columns:repeat(3,1fr)}}
+    .varcard{border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.012));overflow:hidden;display:flex;flex-direction:column}
+    .varcard:hover{border-color:rgba(255,255,255,.35)}
+    .var-head{padding:16px 18px 6px;border-bottom:1px solid var(--line-soft)}
+    .var-num{font-family:var(--fm);font-size:11px;color:var(--muted);letter-spacing:.18em}
+    .var-title{font-family:var(--fd);font-weight:900;font-size:19px;letter-spacing:-.01em;margin:6px 0 4px;color:#fff}
+    .var-note{font-size:13px;color:var(--text-2);line-height:1.6}
+    .var-prompt{background:rgba(0,0,0,.55);padding:14px 16px;font-family:var(--fm);font-size:12.5px;line-height:1.75;color:#e8e8ec;white-space:pre-wrap;word-break:break-word;flex:1;max-height:320px;overflow:auto;border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft)}
+    .var-actions{padding:10px 14px;display:flex;gap:6px}
+    .var-actions .btn{flex:1;padding:9px 8px;font-size:11.5px;letter-spacing:.06em}
+  </style>
 </head>
 <body>
   <header class="nav">
@@ -27,11 +54,14 @@
     <div class="hero">
       <span class="no">06 / PROMPT LAB</span>
       <h1>提示詞優化</h1>
-      <p>把你的<b style="color:#fff">粗略想法</b>變成一段可以直接貼上去用的提示詞，AI 會根據你選的目標工具（Midjourney、ChatGPT、Claude…）用對應的最佳結構。</p>
+      <p>選一個目標 AI 工具、描述你想要的方向<b style="color:#fff">（可選：上傳一張參考圖，AI 會看圖思考）</b>，產出<b style="color:#fff">三個不同造型</b>的完整提示詞，可以分別複製。</p>
     </div>
 
     <section class="panel">
-      <label>目標 AI 工具</label>
+      <label>名稱（可留空）</label>
+      <input id="name" type="text" placeholder="例如：午夜街景概念稿 v1" />
+
+      <label class="block">目標 AI 工具</label>
       <select id="tool">
         <optgroup label="圖像 / Image">
           <option>Midjourney</option>
@@ -44,19 +74,14 @@
           <option>Sora</option>
           <option>Runway Gen-3</option>
           <option>Kling</option>
-          <option>Dream Machine (Luma)</option>
-          <option>Seedance</option>
           <option>Higgsfield</option>
+          <option>Seedance</option>
+          <option>Dream Machine (Luma)</option>
         </optgroup>
         <optgroup label="對話 / Chat">
           <option>ChatGPT / GPT-5</option>
           <option>Claude</option>
           <option>Gemini</option>
-        </optgroup>
-        <optgroup label="程式 / Coding">
-          <option>Claude Code</option>
-          <option>Cursor</option>
-          <option>v0 / Bolt / Lovable</option>
         </optgroup>
         <optgroup label="3D / 語音 / 其他">
           <option>Meshy / Tripo / Rodin (3D)</option>
@@ -65,34 +90,35 @@
         </optgroup>
       </select>
 
-      <label class="block">名稱（可留空）</label>
-      <input id="name" type="text" placeholder="例如：電影感賽博街景 v1" />
+      <label class="block">你想要的方向 / 描述</label>
+      <textarea id="idea" rows="3" placeholder="用你自己的話講。例如：&#10;電影寫實劇照，黑色電影感，給我 3 種不同造型方向"></textarea>
 
-      <label class="block">你的粗略想法</label>
-      <textarea id="idea" rows="6" placeholder="用你自己的話描述要做什麼。例如：&#10;&#10;一張賽博龐克下雨夜的街景，要有電影感、霓虹反光、女主角拿一把傘走進畫面深處。"></textarea>
-
-      <div class="thumb-row">
-        <div class="thumb-box" id="thumb-box" title="點擊上傳縮圖（可選）">
-          <span class="ph">📷 點擊<br>上傳縮圖</span>
-          <button type="button" class="thumb-rm" id="thumb-rm" title="移除縮圖">✕</button>
+      <label class="block">參考圖（可選）</label>
+      <div class="ref-row">
+        <div class="ref-box" id="ref-box" title="點擊上傳參考圖；AI 會看圖再產出">
+          <span class="ph">📷 點擊上傳<br>參考圖<br><span style="opacity:.6;font-size:10px">（AI 會看圖）</span></span>
+          <button type="button" class="ref-rm" id="ref-rm">✕</button>
         </div>
-        <div class="thumb-tip">附一張參考圖或產出範例，方便日後辨識。</div>
+        <div class="ref-tip">
+          上傳一張角色／場景／構圖參考。AI 會分析它的主體、構圖、光線，<b style="color:#fff">再給你三個不同造型方向</b>（衣著、燈光、氛圍各不一樣）。<br><br>
+          <span style="color:var(--muted)">不上傳也可以，AI 會直接依你描述發想。</span>
+        </div>
       </div>
 
-      <div class="actions">
-        <span class="editing-flag" id="flag" style="font-family:var(--fm);font-size:11.5px;letter-spacing:.1em;color:var(--muted);flex:1"></span>
+      <div class="actions" style="margin-top:18px">
+        <span class="editing-flag" id="flag"></span>
         <button id="cancel" class="btn ghost sm" style="display:none">取消編輯</button>
-        <button id="go" class="btn primary">優化提示詞</button>
+        <button id="go" class="btn primary">產生 3 個造型方案</button>
         <button id="save" class="btn" style="display:none">✓ 更新</button>
-        <span id="stat" class="stat"></span>
       </div>
+      <span id="stat" class="stat" style="display:block;margin-top:10px"></span>
     </section>
 
-    <div id="out" class="out empty">〉 優化後的提示詞會出現在這裡，可以一鍵複製。</div>
-    <div id="out-actions" class="actions hidden"><button id="copy" class="btn">⧉ 複製提示詞</button></div>
+    <div id="imgnotes" class="imgnotes hidden"></div>
+    <div id="vargrid" class="vargrid"></div>
 
     <section class="history">
-      <h2>歷史提示詞（雲端共用）</h2>
+      <h2>歷史紀錄（雲端共用）</h2>
       <div class="h-list" id="hlist"></div>
     </section>
   </main>
@@ -102,14 +128,15 @@
   <script>
   (function(){
     var $=function(s){return document.querySelector(s);};
-    var cache=[]; var lastText='';
-    var editingId=null; var currentThumb=null;
+    var cache=[]; var editingId=null;
+    var refImage=null; // base64 dataURL
+
     function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
     function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('show');},1800);}
 
     document.addEventListener('jstwins-auth',function(e){
       $('#who').textContent='👤 '+e.detail.user;
-      $('#cloud').textContent='● 雲端已連線'; $('#cloud').classList.add('live');
+      $('#cloud').textContent='● 雲端已連線';$('#cloud').classList.add('live');
       loadHistory();
     });
 
@@ -121,78 +148,99 @@
       return d;
     }
 
-    // 把 ```code``` 區塊高亮成 <pre>，其他保留行內格式
-    function render(text){
-      var parts = text.split(/```([\s\S]*?)```/g);
-      var html='';
-      parts.forEach(function(p,i){
-        if(i%2===1){ html += '<pre>'+esc(p.trim())+'</pre>'; }
-        else {
-          p.split('\n').forEach(function(line){
-            if(!line.trim()){ html+='<br>'; return; }
-            var m=line.match(/^【(.+?)】\s*$/);
-            if(m){ html+='<h3>'+esc(m[1])+'</h3>'; return; }
-            html += '<p>'+esc(line)+'</p>';
-          });
-        }
-      });
-      return html;
+    function setRef(url){
+      refImage=url||null;
+      var box=$('#ref-box');
+      var existing=box.querySelector('img'); if(existing) existing.remove();
+      if(refImage){
+        var img=document.createElement('img'); img.src=refImage;
+        box.insertBefore(img, box.querySelector('.ref-rm'));
+        box.classList.add('has');
+      } else { box.classList.remove('has'); }
     }
-
-    // 從 AI 輸出抽出 ```...``` 區塊內容（給「複製」鈕）
-    function extractPrompt(text){
-      var m = text.match(/```([\s\S]*?)```/);
-      return m ? m[1].trim() : text.trim();
-    }
-
-    function setThumb(url){
-      currentThumb=url||null;
-      var box=$('#thumb-box');
-      if(currentThumb){
-        var ex=box.querySelector('img'); if(ex) ex.remove();
-        var img=document.createElement('img'); img.src=currentThumb;
-        box.insertBefore(img, box.querySelector('.thumb-rm'));
-        box.classList.add('has-thumb');
-      } else {
-        var ex2=box.querySelector('img'); if(ex2) ex2.remove();
-        box.classList.remove('has-thumb');
-      }
-    }
-    function resetComposer(){
-      editingId=null; lastText='';
-      $('#name').value=''; $('#idea').value=''; setThumb(null);
-      $('#go').style.display=''; $('#save').style.display='none'; $('#cancel').style.display='none'; $('#flag').textContent='';
-      $('#out').className='out empty'; $('#out').textContent='〉 優化後的提示詞會出現在這裡。'; $('#out-actions').classList.add('hidden');
-    }
-    async function pickThumb(){
+    async function pickRef(){
       var f=await JSTImg.pickFile(); if(!f) return;
-      try{ var url=await JSTImg.resize(f); setThumb(url); toast('已選好縮圖'); }
+      try{ var url=await JSTImg.resize(f, 1024, 1024, 0.85); setRef(url); toast('已上傳參考圖（AI 會看這張）'); }
       catch(e){ toast('❌ '+e.message); }
     }
 
-    async function optimize(){
+    function renderImageNotes(notes){
+      if(!notes){ $('#imgnotes').classList.add('hidden'); return; }
+      $('#imgnotes').classList.remove('hidden');
+      $('#imgnotes').innerHTML='<b>AI 看到的參考圖內容</b>'+esc(notes);
+    }
+    function renderVariations(vars){
+      var box=$('#vargrid');
+      if(!vars||!vars.length){ box.innerHTML=''; return; }
+      box.innerHTML=vars.map(function(v,i){
+        var n=['一','二','三'][i]||(i+1);
+        return '<div class="varcard"><div class="var-head">'+
+          '<div class="var-num">造型 '+n+'</div>'+
+          '<div class="var-title">'+esc(v.title||'未命名')+'</div>'+
+          '<div class="var-note">'+esc(v.note||'')+'</div></div>'+
+          '<div class="var-prompt" data-prompt="'+esc(v.prompt||'')+'">'+esc(v.prompt||'')+'</div>'+
+          '<div class="var-actions"><button class="btn sm primary copy" data-i="'+i+'">⧉ 複製這個 Prompt</button></div>'+
+        '</div>';
+      }).join('');
+      // 綁定複製
+      box.querySelectorAll('.copy').forEach(function(b){
+        b.addEventListener('click',function(){
+          var idx=parseInt(b.dataset.i,10);
+          var text=(window.__lastVars__||[])[idx]&&window.__lastVars__[idx].prompt||'';
+          navigator.clipboard.writeText(text).then(function(){toast('⧉ 已複製：造型 '+['一','二','三'][idx]);});
+        });
+      });
+    }
+
+    function renderLegacyText(text){
+      $('#imgnotes').classList.add('hidden');
+      $('#vargrid').innerHTML='<div class="varcard" style="grid-column:1/-1"><div class="var-head"><div class="var-title">舊版輸出</div><div class="var-note">這筆是舊版的單一提示詞輸出</div></div>'+
+        '<div class="var-prompt">'+esc(text)+'</div>'+
+        '<div class="var-actions"><button class="btn sm primary" id="copy-legacy">⧉ 複製</button></div></div>';
+      var b=$('#copy-legacy'); if(b) b.addEventListener('click',function(){ navigator.clipboard.writeText(text).then(function(){toast('⧉ 已複製');}); });
+    }
+
+    function resetComposer(){
+      editingId=null; window.__lastVars__=null;
+      $('#name').value=''; $('#idea').value=''; setRef(null);
+      $('#go').style.display=''; $('#save').style.display='none'; $('#cancel').style.display='none'; $('#flag').textContent='';
+      $('#imgnotes').classList.add('hidden'); $('#vargrid').innerHTML='';
+      $('#stat').textContent='';
+    }
+
+    async function generate(){
       var idea=$('#idea').value.trim();
       var tool=$('#tool').value;
       var name=$('#name').value.trim();
-      if(!idea){ toast('請寫下你的粗略想法'); $('#idea').focus(); return; }
-      var btn=$('#go'); btn.disabled=true; var stat=$('#stat');
-      stat.textContent='⏳ 優化中…';
-      $('#out').className='out empty'; $('#out').textContent='〉 思考中…'; $('#out-actions').classList.add('hidden');
+      if(!idea && !refImage){ toast('請輸入方向或上傳參考圖'); $('#idea').focus(); return; }
+      var btn=$('#go'); btn.disabled=true; btn.textContent='思考中…';
+      var t0=Date.now();
+      var stat=$('#stat'); stat.textContent='⏳ AI 看圖、思考、生成中 · 0 秒（約 20–60 秒）';
+      var ticker=setInterval(function(){ stat.textContent='⏳ AI 思考中 · '+Math.floor((Date.now()-t0)/1000)+' 秒（約 20–60 秒）'; },1000);
+      $('#imgnotes').classList.add('hidden'); $('#vargrid').innerHTML='';
       try{
-        var d=await api('/api/prompt-lab',{ method:'POST', body: JSON.stringify({ idea:idea, tool:tool }) });
-        lastText=d.text;
-        $('#out').className='out'; $('#out').innerHTML=render(d.text); $('#out-actions').classList.remove('hidden');
-        await api('/api/items',{ method:'POST', body: JSON.stringify({ kind:'prompt-lab', data:{ name:name, idea:idea, tool:tool, text:d.text, thumbnail:currentThumb||'' } }) });
-        stat.textContent='✓ 完成並已儲存到雲端';
+        var d=await api('/api/prompt-lab',{ method:'POST', body: JSON.stringify({ idea:idea, tool:tool, image:refImage||'' }) });
+        clearInterval(ticker);
+        window.__lastVars__ = d.variations||[];
+        if(d.variations && d.variations.length){
+          renderImageNotes(d.imageNotes||'');
+          renderVariations(d.variations);
+        } else {
+          renderLegacyText(d.text||'');
+        }
+        // 雲端儲存
+        await api('/api/items',{ method:'POST', body: JSON.stringify({ kind:'prompt-lab', data:{ name:name, tool:tool, idea:idea, referenceImage:refImage||'', imageNotes:d.imageNotes||'', variations:d.variations||[], text:d.text||'', thumbnail:refImage||'' } }) });
+        stat.textContent='✓ 完成（共 '+Math.floor((Date.now()-t0)/1000)+' 秒）並已儲存到雲端';
         loadHistory();
-      }catch(e){ stat.textContent='❌ '+e.message; $('#out').className='out empty'; $('#out').textContent='〉 失敗：'+e.message; }
-      finally{ btn.disabled=false; }
+      }catch(e){ clearInterval(ticker); stat.textContent='❌ '+e.message; }
+      finally{ btn.disabled=false; btn.textContent='產生 3 個造型方案'; }
     }
+
     async function updateItem(){
       if(!editingId) return;
-      var name=$('#name').value.trim(); var idea=$('#idea').value.trim(); var tool=$('#tool').value;
+      var name=$('#name').value.trim(); var tool=$('#tool').value;
       var it=cache.find(function(x){return x.id===editingId;}); if(!it) return;
-      var data=Object.assign({}, it.data||{}, { name:name, idea:idea, tool:tool, thumbnail:currentThumb||'' });
+      var data=Object.assign({}, it.data||{}, { name:name, tool:tool, idea:$('#idea').value.trim(), referenceImage:refImage||'', thumbnail:refImage||(it.data&&it.data.thumbnail)||'' });
       var btn=$('#save'); btn.disabled=true;
       try{ await api('/api/items/'+editingId,{method:'PUT',body:JSON.stringify({data:data})}); toast('✓ 已更新'); resetComposer(); loadHistory(); }
       catch(e){ toast('❌ '+e.message); }
@@ -208,31 +256,33 @@
           var data=it.data||{};
           var when=new Date(it.updated_at||it.created_at).toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
           var by=it.created_by?' · '+esc(it.created_by):'';
-          var name=data.name||(data.tool+' · '+(data.idea||'').slice(0,40));
-          var thumb=data.thumbnail
-            ? '<div class="h-thumb" style="background-image:url(\''+esc(data.thumbnail)+'\')"></div>'
-            : '<div class="h-thumb empty">無縮圖</div>';
+          var name=data.name||((data.idea||'').slice(0,30)||'未命名');
+          var thumb=data.thumbnail||data.referenceImage
+            ? '<div class="h-thumb" style="background-image:url(\''+esc(data.thumbnail||data.referenceImage)+'\')"></div>'
+            : '<div class="h-thumb empty">無圖</div>';
+          var varCount = (data.variations && data.variations.length) ? (' · '+data.variations.length+' 造型') : '';
           return '<div class="h-item" data-id="'+it.id+'">'+thumb+
             '<div class="h-main">'+
-              '<div class="h-item-head"><div class="h-name'+(data.name?'':' empty')+'">'+esc(name)+'</div><span class="h-meta">'+esc(data.tool||'')+' · '+when+by+'</span></div>'+
-              '<div class="h-acts" style="margin-top:8px"><button class="btn sm view">展開</button><button class="btn sm edit">✎ 編輯</button><button class="btn sm copy">⧉ 複製</button><button class="btn sm ghost danger del">刪除</button></div>'+
+              '<div class="h-item-head"><div class="h-name'+(data.name?'':' empty')+'">'+esc(name)+'</div><span class="h-meta">'+esc(data.tool||'')+' · '+when+by+varCount+'</span></div>'+
+              '<div class="h-acts" style="margin-top:8px"><button class="btn sm view">展開</button><button class="btn sm edit">✎ 改名</button><button class="btn sm ghost danger del">刪除</button></div>'+
             '</div></div>';
         }).join('');
         box.querySelectorAll('.view').forEach(function(b){ b.addEventListener('click',function(){
-          var id=b.closest('.h-item').dataset.id; var it=cache.find(function(x){return x.id===id;});
-          if(it){ lastText=it.data.text||''; $('#out').className='out'; $('#out').innerHTML=render(lastText); $('#out-actions').classList.remove('hidden'); window.scrollTo({top:0,behavior:'smooth'}); }
+          var id=b.closest('.h-item').dataset.id; var it=cache.find(function(x){return x.id===id;}); if(!it) return;
+          var d=it.data||{};
+          window.__lastVars__=d.variations||[];
+          if(d.variations && d.variations.length){ renderImageNotes(d.imageNotes||''); renderVariations(d.variations); }
+          else { renderLegacyText(d.text||''); }
+          window.scrollTo({top:0,behavior:'smooth'});
         }); });
         box.querySelectorAll('.edit').forEach(function(b){ b.addEventListener('click',function(){
           var id=b.closest('.h-item').dataset.id; var it=cache.find(function(x){return x.id===id;}); if(!it) return;
           editingId=id;
-          $('#name').value=it.data.name||''; $('#idea').value=it.data.idea||''; $('#tool').value=it.data.tool||$('#tool').value; setThumb(it.data.thumbnail||null);
-          $('#go').style.display='none'; $('#save').style.display=''; $('#cancel').style.display=''; $('#flag').textContent='編輯中…（內容文字不會重生成）';
-          lastText=it.data.text||''; $('#out').className='out'; $('#out').innerHTML=render(lastText); $('#out-actions').classList.remove('hidden');
+          $('#name').value=it.data.name||''; $('#idea').value=it.data.idea||''; $('#tool').value=it.data.tool||$('#tool').value;
+          setRef(it.data.referenceImage||it.data.thumbnail||null);
+          $('#go').style.display='none'; $('#save').style.display=''; $('#cancel').style.display='';
+          $('#flag').textContent='編輯中（內容不會重生成）';
           window.scrollTo({top:0,behavior:'smooth'}); $('#name').focus();
-        }); });
-        box.querySelectorAll('.copy').forEach(function(b){ b.addEventListener('click',function(){
-          var id=b.closest('.h-item').dataset.id; var it=cache.find(function(x){return x.id===id;});
-          if(it) navigator.clipboard.writeText(extractPrompt(it.data.text||'')).then(function(){toast('⧉ 已複製提示詞');});
         }); });
         box.querySelectorAll('.del').forEach(function(b){ b.addEventListener('click',async function(){
           if(!confirm('刪除這筆？')) return;
@@ -241,15 +291,11 @@
       }catch(e){ $('#hlist').innerHTML='<div class="h-empty">載入失敗：'+esc(e.message)+'</div>'; }
     }
 
-    $('#go').addEventListener('click',optimize);
+    $('#go').addEventListener('click',generate);
     $('#save').addEventListener('click',updateItem);
     $('#cancel').addEventListener('click',resetComposer);
-    $('#thumb-box').addEventListener('click',function(e){ if(e.target.id==='thumb-rm') return; pickThumb(); });
-    $('#thumb-rm').addEventListener('click',function(e){ e.stopPropagation(); setThumb(null); });
-    $('#copy').addEventListener('click',function(){
-      if(!lastText){ toast('沒有可複製的內容'); return; }
-      navigator.clipboard.writeText(extractPrompt(lastText)).then(function(){toast('⧉ 已複製提示詞');});
-    });
+    $('#ref-box').addEventListener('click',function(e){ if(e.target.id==='ref-rm') return; pickRef(); });
+    $('#ref-rm').addEventListener('click',function(e){ e.stopPropagation(); setRef(null); });
   })();
   </script>
 </body>

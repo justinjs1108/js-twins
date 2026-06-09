@@ -156,7 +156,16 @@ app.post('/api/trailer-analyze', requireUser, async (req, res) => {
 - 列 3–5 個「下次寫劇本可以偷學的招」，每招都要可以**馬上拿去用**（例如：第一場戲用 X 手法製造鉤子；用 Y 種剪接過渡兩段時間線；…）`;
     const text = await gemini.analyzeYouTube(url, systemPrompt, userPrompt);
     res.json({ text });
-  } catch (err) { console.error(err); res.status(500).json({ error: err.message || '分析失敗' }); }
+  } catch (err) {
+    console.error(err);
+    let msg = err.message || '分析失敗';
+    if (/429|quota|rate.?limit/i.test(msg)) {
+      msg = 'Gemini 今天免費影片分析的額度已用完（每天會自動重置）。建議：①明天再試 ②換一支較短的影片 ③升級 Gemini 付費方案以解鎖更多額度。';
+    } else if (/403|permission/i.test(msg)) {
+      msg = '無法存取這支影片（可能是私人或地區限制）。請貼一支公開的 YouTube 連結。';
+    }
+    res.status(500).json({ error: msg });
+  }
 });
 
 // ───────── 工具5：台詞翻譯（中→英，口語電影台詞風）─────────
@@ -182,45 +191,85 @@ Rules (apply ALL):
   } catch (err) { console.error(err); res.status(500).json({ error: err.message || '翻譯失敗' }); }
 });
 
-// ───────── 工具6：提示詞優化（套 prompt-master 腦袋）─────────
+// ───────── 工具6：提示詞優化（支援上傳圖、產 3 個造型方案）─────────
+function parseVariations(text) {
+  const out = { imageNotes: '', variations: [] };
+  const im = text.match(/===IMAGE_NOTES===\s*([\s\S]*?)(?====VARIATION_1===|$)/);
+  if (im) out.imageNotes = im[1].trim();
+  for (let i = 1; i <= 3; i++) {
+    const re = new RegExp(`===VARIATION_${i}===\\s*TITLE:\\s*(.+?)\\s*NOTE:\\s*([\\s\\S]+?)\\s*PROMPT:\\s*([\\s\\S]*?)(?:===VARIATION_${i + 1}===|$)`);
+    const m = text.match(re);
+    if (m) out.variations.push({ title: m[1].trim(), note: m[2].trim(), prompt: m[3].trim() });
+  }
+  return out;
+}
+
 app.post('/api/prompt-lab', requireUser, async (req, res) => {
   try {
     const idea = String((req.body || {}).idea || '').trim();
     const tool = String((req.body || {}).tool || '').trim();
-    if (!idea) return res.status(400).json({ error: '請輸入你的粗略想法。' });
+    const image = (req.body || {}).image; // optional base64 dataURL
+    if (!idea && !image) return res.status(400).json({ error: '請輸入想法或上傳一張參考圖。' });
     if (!tool) return res.status(400).json({ error: '請選擇目標 AI 工具。' });
-    const sys = `You are a senior prompt engineer. Take the user's rough idea, identify the target AI tool, extract the actual intent, and output a SINGLE production-ready prompt optimized for that specific tool with zero wasted tokens.
 
-Tool-specific rules — apply the ones that fit the target tool:
-- Midjourney: comma-separated descriptors (NOT prose). Subject first, then style/mood/lighting/composition. Parameters at end (--ar 16:9 --v 6 --style raw). Use --no for negatives.
-- Nano Banana / image character work: prose description, specify character details + scene + style + lighting. Include "no text in image unless specified".
+    const sys = `You are a senior prompt engineer specializing in visual AI tools. The user will give you:
+1) (Optional) A reference image
+2) A direction in their own words (e.g. "cinematic realistic still")
+3) The target AI tool
+
+Your job:
+- IF an image is provided, SILENTLY analyze it deeply — subject, pose, framing, lighting, colors, mood, style cues
+- Generate THREE DISTINCT styling/concept variations that share the same subject/composition (if image given) or theme, but differ meaningfully in:
+  * styling / wardrobe / look
+  * mood / lighting / time of day
+  * art direction / aesthetic angle
+- Each variation MUST be a complete, paste-ready prompt for the target tool, following that tool's best-practice format.
+
+Tool-specific format rules (apply the matching one):
+- Midjourney: comma-separated descriptors (NOT prose). Subject → style → mood → lighting → composition. Parameters at end (--ar 16:9 --v 6 --style raw). Use --no for negatives.
+- Nano Banana: prose, specify character/scene/style/lighting. "no text in image unless specified".
+- DALL-E 3: prose, separate foreground/midground/background.
 - Stable Diffusion: (word:weight) syntax, mandatory negative prompt, CFG 7-12.
-- DALL-E 3: prose, separate foreground/midground/background for complex scenes.
-- Sora / Runway / Kling (video): describe as if directing — specify camera movement (static/dolly/crane), shot type, motion intensity.
-- ChatGPT / GPT-5.x: explicit output contract (format, length, "done" criteria). Compact structured instructions.
-- Claude: be literal and explicit, use XML tags for multi-section (<context><task><constraints><output_format>). State WHY not just WHAT.
-- Gemini: add "Cite only sources you're certain of. If uncertain, say [uncertain]" for factual tasks.
-- Cursor / Windsurf / Claude Code: file path + function + current behavior + desired change + do-not-touch list + "Done when:" criteria.
+- SeeDream: art-style keyword first, then scene, mood, atmosphere. Negative prompt.
+- Sora / Runway / Kling / Higgsfield / Seedance (video): describe as if directing a shot — camera movement, shot type, motion intensity.
+- ChatGPT / Claude / Gemini (chat): role assignment + explicit output format + concrete deliverable.
 
-Output format — STRICTLY this shape, in Traditional Chinese for labels:
+OUTPUT FORMAT — use these EXACT dividers (use Traditional Chinese for TITLE and NOTE; keep the actual PROMPT in the appropriate language for that tool, usually English):
 
-【優化後的提示詞】
-\`\`\`
-<the actual prompt, ready to paste>
-\`\`\`
+===IMAGE_NOTES===
+[If image given: 1–3 lines of your observations in Traditional Chinese. If no image: write 「(無參考圖)」.]
 
-🎯 目標工具：<tool name>
-💡 重點優化：<one sentence — what was tightened and why>
+===VARIATION_1===
+TITLE: [4–10 chars, memorable, in Traditional Chinese, e.g. 「黑色電影夜雨版」]
+NOTE: [1 line in Traditional Chinese — what makes THIS version distinct]
+PROMPT:
+[the complete ready-to-paste prompt for the target tool]
 
-(若需要設定步驟才能貼上，加 1–2 行繁中說明；不需要就省略。)
+===VARIATION_2===
+TITLE: ...
+NOTE: ...
+PROMPT:
+...
 
-Hard rules:
-- Output ONLY this format. No theory, no framework names, no preamble.
-- Use the strongest signal words (MUST > should, NEVER > avoid).
-- Critical constraints must appear in the first 30% of the generated prompt.`;
-    const user = `目標工具：${tool}\n\n粗略想法：${idea}`;
-    const out = await ai.chat([{ role: 'system', content: sys }, { role: 'user', content: user }]);
-    res.json({ text: out, demo: !ai.isConfigured() });
+===VARIATION_3===
+TITLE: ...
+NOTE: ...
+PROMPT:
+...
+
+HARD RULES:
+- The three variations MUST feel different — don't just swap a word
+- Each PROMPT must stand alone and be paste-ready
+- No preamble. No closing remarks. Output ONLY the format above.`;
+
+    const userText = `目標工具 / Target tool: ${tool}\n\n方向 / Direction: ${idea || '(請依參考圖自由發揮，做出三個不同造型)'}`;
+    const userContent = image
+      ? [{ type: 'text', text: userText }, { type: 'image_url', image_url: { url: image } }]
+      : userText;
+
+    const raw = await ai.chat([{ role: 'system', content: sys }, { role: 'user', content: userContent }]);
+    const parsed = parseVariations(raw);
+    res.json({ text: raw, ...parsed, demo: !ai.isConfigured() });
   } catch (err) { console.error(err); res.status(500).json({ error: err.message || '優化失敗' }); }
 });
 
