@@ -385,7 +385,7 @@ async function renderSaves() {
     const when = new Date(it.updated_at || it.created_at).toLocaleString('zh-TW', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
     const by = it.created_by ? '<span class="h-meta" style="margin-left:8px">— ' + escapeHtml(it.created_by) + '</span>' : '';
     const thumb = d.thumbnail
-      ? `<div class="h-thumb" style="background-image:url('${escapeHtml(d.thumbnail)}')"></div>`
+      ? `<div class="h-thumb lb-clickable" data-thumb="${escapeHtml(d.thumbnail)}" style="background-image:url('${escapeHtml(d.thumbnail)}')" title="點擊看大圖"></div>`
       : '<div class="h-thumb empty">無縮圖</div>';
     return `<div class="h-item" data-id="${it.id}" style="padding:14px;border:1px solid rgba(255,255,255,.14);border-radius:10px;background:rgba(0,0,0,.28);margin-bottom:8px">${thumb}
       <div class="h-main">
@@ -400,6 +400,10 @@ async function renderSaves() {
   box.querySelectorAll('.load-script').forEach((b) => b.addEventListener('click', (e) => loadProject(e.target.closest('.h-item').dataset.id)));
   box.querySelectorAll('.del-script').forEach((b) => b.addEventListener('click', (e) => deleteSaved(e.target.closest('.h-item').dataset.id)));
   box.querySelectorAll('.edit-script').forEach((b) => b.addEventListener('click', (e) => editSavedScript(e.target.closest('.h-item').dataset.id)));
+  box.querySelectorAll('.h-thumb.lb-clickable').forEach((t) => t.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (window.JSTLightbox) JSTLightbox.open([t.dataset.thumb]);
+  }));
 }
 
 async function editSavedScript(id) {

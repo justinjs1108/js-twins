@@ -1,0 +1,84 @@
+/* ============================================================
+   共用大圖檢視 Lightbox — 黑白電影感
+   點縮圖開啟全螢幕、Esc 或點背景關閉、左右鍵切換多張
+   ============================================================ */
+.jst-lb {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0, 0, 0, 0.94);
+  backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  animation: lbIn .26s ease;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+}
+.jst-lb.out { animation: lbOut .22s ease forwards; }
+@keyframes lbIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes lbOut { to { opacity: 0; } }
+
+.jst-lb .lb-stage {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  padding: 64px 80px;
+  box-sizing: border-box;
+}
+.jst-lb .lb-img {
+  max-width: 100%; max-height: 100%;
+  object-fit: contain;
+  box-shadow: 0 30px 100px rgba(0, 0, 0, 0.9);
+  animation: lbImg .35s cubic-bezier(.2,.7,.2,1);
+  cursor: zoom-out;
+  background: #0a0a0a;
+}
+@keyframes lbImg { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: none; } }
+
+.jst-lb .lb-close {
+  position: absolute; top: 20px; right: 24px;
+  width: 42px; height: 42px;
+  display: grid; place-items: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff; border-radius: 50%; cursor: pointer;
+  font-size: 18px; transition: all 0.2s;
+}
+.jst-lb .lb-close:hover {
+  background: #fff; color: #000; transform: scale(1.05);
+}
+
+.jst-lb .lb-nav {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 56px; height: 56px; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff; font-size: 28px; cursor: pointer;
+  display: grid; place-items: center;
+  transition: all 0.2s; user-select: none;
+}
+.jst-lb .lb-prev { left: 24px; }
+.jst-lb .lb-next { right: 24px; }
+.jst-lb .lb-nav:hover {
+  background: #fff; color: #000; transform: translateY(-50%) scale(1.05);
+}
+
+.jst-lb .lb-counter {
+  position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%);
+  font-size: 12px; letter-spacing: 0.18em; color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+}
+.jst-lb .lb-caption {
+  position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%);
+  max-width: 80%; text-align: center;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 14px; color: rgba(255, 255, 255, 0.75);
+  letter-spacing: 0;
+}
+
+body.lb-open { overflow: hidden; }
+
+/* 可點縮圖：游標提示可放大 */
+.lb-clickable { cursor: zoom-in; transition: transform .25s; }
+.lb-clickable:hover { transform: scale(1.02); }
+
+@media (max-width: 640px) {
+  .jst-lb .lb-stage { padding: 56px 14px; }
+  .jst-lb .lb-nav { width: 42px; height: 42px; font-size: 22px; }
+  .jst-lb .lb-prev { left: 10px; } .jst-lb .lb-next { right: 10px; }
+}

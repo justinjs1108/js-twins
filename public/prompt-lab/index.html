@@ -8,8 +8,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;500;800;900&family=Hanken+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/tool.css" />
+  <link rel="stylesheet" href="/css/lightbox.css" />
   <script src="/js/guard.js"></script>
   <script src="/js/img.js"></script>
+  <script src="/js/lightbox.js"></script>
   <style>
     .editing-flag{font-family:var(--fm);font-size:11.5px;letter-spacing:.1em;color:var(--muted);flex:1}
     .ref-box{position:relative;width:200px;height:200px;border-radius:12px;border:1.5px dashed var(--line);background:rgba(0,0,0,.35);display:grid;place-items:center;cursor:pointer;overflow:hidden;flex:none;transition:border-color .2s}
@@ -255,8 +257,9 @@
           var when=new Date(it.updated_at||it.created_at).toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
           var by=it.created_by?' · '+esc(it.created_by):'';
           var name=data.name||((data.idea||'').slice(0,30)||'未命名');
-          var thumb=data.thumbnail||data.referenceImage
-            ? '<div class="h-thumb" style="background-image:url(\''+esc(data.thumbnail||data.referenceImage)+'\')"></div>'
+          var imgSrc=data.thumbnail||data.referenceImage;
+          var thumb=imgSrc
+            ? '<div class="h-thumb lb-clickable" data-thumb="'+esc(imgSrc)+'" style="background-image:url(\''+esc(imgSrc)+'\')" title="點擊看大圖"></div>'
             : '<div class="h-thumb empty">無圖</div>';
           var varCount = (data.variations && data.variations.length) ? (' · '+data.variations.length+' 造型') : '';
           return '<div class="h-item" data-id="'+it.id+'">'+thumb+
@@ -265,6 +268,10 @@
               '<div class="h-acts" style="margin-top:8px"><button class="btn sm view">展開</button><button class="btn sm edit">✎ 改名</button><button class="btn sm ghost danger del">刪除</button></div>'+
             '</div></div>';
         }).join('');
+        box.querySelectorAll('.h-thumb.lb-clickable').forEach(function(t){ t.addEventListener('click',function(e){
+          e.stopPropagation();
+          if(window.JSTLightbox) JSTLightbox.open([t.dataset.thumb]);
+        }); });
         box.querySelectorAll('.view').forEach(function(b){ b.addEventListener('click',function(){
           var id=b.closest('.h-item').dataset.id; var it=cache.find(function(x){return x.id===id;}); if(!it) return;
           var d=it.data||{};

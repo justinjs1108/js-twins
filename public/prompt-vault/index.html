@@ -8,31 +8,58 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;500;800;900&family=Hanken+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/tool.css" />
+  <link rel="stylesheet" href="/css/lightbox.css" />
   <script src="/js/guard.js"></script>
   <script src="/js/img.js"></script>
+  <script src="/js/lightbox.js"></script>
   <style>
-    .tabs{display:inline-flex;gap:4px;background:rgba(0,0,0,.4);border:1px solid var(--line);border-radius:999px;padding:5px;margin-bottom:18px}
+    .tabs{display:inline-flex;gap:4px;background:rgba(0,0,0,.4);border:1px solid var(--line);border-radius:999px;padding:5px;margin-bottom:14px}
     .tab{font-family:var(--fm);font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;border:0;background:none;color:var(--text-2);padding:10px 20px;border-radius:999px;cursor:pointer;transition:all .25s var(--ease)}
     .tab.on{background:#fff;color:#000;font-weight:500}
     .tab .c{opacity:.5;margin-left:7px}
     .editing-flag{font-family:var(--fm);font-size:11.5px;letter-spacing:.1em;color:var(--muted);min-width:0;flex:1}
 
-    /* ── 縮圖大小拉條 ── */
-    .grid-bar{display:flex;justify-content:space-between;align-items:center;gap:14px;margin:6px 0 12px;flex-wrap:wrap}
-    .size-ctrl{display:flex;align-items:center;gap:10px;font-family:var(--fm);font-size:11px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
+    /* ── 資料夾橫向篩選列 ── */
+    .folder-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0 14px;padding:10px 0;border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft)}
+    .folder-bar-label{font-family:var(--fm);font-size:10.5px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-right:6px}
+    .folder-chip{font-family:var(--fm);font-size:11.5px;letter-spacing:.04em;padding:7px 14px;border-radius:999px;background:var(--glass);border:1px solid var(--line);color:var(--text-2);cursor:pointer;transition:all .18s;display:inline-flex;align-items:center;gap:6px;user-select:none}
+    .folder-chip:hover{color:#fff;border-color:rgba(255,255,255,.4)}
+    .folder-chip.on{background:#fff;color:#000;border-color:#fff;font-weight:500}
+    .folder-chip .cnt{opacity:.55;font-size:10.5px}
+    .folder-chip .frm{margin-left:6px;color:var(--muted);font-size:11px}
+    .folder-chip.on .frm{color:rgba(0,0,0,.5)}
+    .folder-chip:hover .frm{color:#fff}
+    .folder-add{font-family:var(--fm);font-size:11px;letter-spacing:.1em;text-transform:uppercase;background:none;border:1px dashed var(--line);color:var(--muted);padding:7px 14px;border-radius:999px;cursor:pointer;transition:all .18s}
+    .folder-add:hover{color:#fff;border-color:rgba(255,255,255,.4)}
+
+    /* ── 排序 + 大小拉條 ── */
+    .toolbar-2{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:0 0 16px}
+    .toolbar-2 .sp{flex:1}
+    .sort-sel{font-family:var(--fm);font-size:12px;letter-spacing:.06em;background:rgba(0,0,0,.4);color:var(--text);border:1px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer}
+    .sort-sel:focus{outline:none;border-color:rgba(255,255,255,.4)}
+    .size-ctrl{display:flex;align-items:center;gap:10px;font-family:var(--fm);font-size:10.5px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
     .size-ctrl .ic{font-size:12px;line-height:1}.size-ctrl .ic.big{font-size:18px}
     .size-ctrl input[type=range]{appearance:none;-webkit-appearance:none;width:140px;height:3px;background:rgba(255,255,255,.18);border-radius:999px;outline:none;cursor:pointer}
     .size-ctrl input[type=range]::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#fff;border:0;cursor:pointer;transition:transform .15s}
     .size-ctrl input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15)}
     .size-ctrl input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;border:0;cursor:pointer}
 
-    /* ── 網格畫面：大縮圖 + 名稱 + 按鈕 ── */
+    /* ── Composer 多張圖片 ── */
+    .imgs-strip{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .imgs-strip .img-cell{position:relative;width:96px;height:72px;border-radius:8px;overflow:hidden;border:1px solid var(--line);background:rgba(0,0,0,.4)}
+    .imgs-strip .img-cell img{width:100%;height:100%;object-fit:cover;display:block}
+    .imgs-strip .img-cell .x{position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.75);border:1px solid var(--line);color:#fff;font-size:12px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+    .imgs-strip .add-cell{width:96px;height:72px;border-radius:8px;border:1.5px dashed var(--line);display:grid;place-items:center;cursor:pointer;color:var(--muted);font-family:var(--fm);font-size:11px;letter-spacing:.06em;line-height:1.5;text-align:center;transition:all .18s}
+    .imgs-strip .add-cell:hover{color:#fff;border-color:rgba(255,255,255,.4)}
+
+    /* ── 網格卡片 ── */
     .grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(var(--card-min,240px),1fr));transition:grid-template-columns .25s var(--ease)}
-    .card-v{transition:border-color .25s,transform .25s,box-shadow .25s}
-    .card-v{border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.01));overflow:hidden;display:flex;flex-direction:column;transition:border-color .25s,transform .25s,box-shadow .25s}
+    .card-v{border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.01));overflow:hidden;display:flex;flex-direction:column;transition:border-color .25s,transform .25s,box-shadow .25s;position:relative}
     .card-v:hover{border-color:rgba(255,255,255,.4);transform:translateY(-3px);box-shadow:0 14px 32px rgba(0,0,0,.5)}
-    .card-v .cv-thumb{width:100%;aspect-ratio:4/3;background:rgba(0,0,0,.55) center/cover no-repeat;position:relative}
-    .card-v .cv-thumb.empty{display:grid;place-items:center;color:var(--muted);font-family:var(--fm);font-size:11px;letter-spacing:.16em;text-transform:uppercase;background:repeating-linear-gradient(135deg,rgba(255,255,255,.02) 0 10px,rgba(255,255,255,.04) 10px 20px)}
+    .card-v .cv-thumb{width:100%;aspect-ratio:4/3;background:rgba(0,0,0,.55) center/cover no-repeat;position:relative;cursor:zoom-in;display:block}
+    .card-v .cv-thumb.empty{display:grid;place-items:center;color:var(--muted);font-family:var(--fm);font-size:11px;letter-spacing:.16em;text-transform:uppercase;background:repeating-linear-gradient(135deg,rgba(255,255,255,.02) 0 10px,rgba(255,255,255,.04) 10px 20px);cursor:default}
+    .card-v .cv-cnt{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.7);color:#fff;font-family:var(--fm);font-size:10.5px;letter-spacing:.06em;padding:3px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.18)}
+    .card-v .cv-fld{position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,.7);color:rgba(255,255,255,.85);font-family:var(--fm);font-size:10px;letter-spacing:.06em;padding:3px 9px;border-radius:999px;border:1px solid rgba(255,255,255,.18);max-width:80%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .card-v .cv-body{padding:14px 16px 4px}
     .card-v .cv-name{font-family:var(--fd);font-weight:800;font-size:16px;letter-spacing:-.005em;line-height:1.3;color:var(--text)}
     .card-v .cv-name.empty{color:var(--muted);font-weight:500;font-style:italic}
@@ -42,6 +69,17 @@
     .card-v .cv-acts{padding:10px 14px 14px;display:flex;gap:6px;margin-top:auto}
     .card-v .cv-acts .btn{flex:1;padding:8px 6px;font-size:11px;letter-spacing:.06em}
     .card-v .cv-acts .btn.danger{flex:0 0 auto;padding:8px 10px}
+    .card-v .cv-acts .btn.move{flex:0 0 auto;padding:8px 12px}
+
+    /* ── Modal: 建立／重命名／移動 ── */
+    .modal-bg{position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);display:grid;place-items:center;padding:20px;animation:fadeIn .2s ease}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .modal-box{width:100%;max-width:420px;border:1px solid var(--line);border-radius:14px;background:#0a0a0c;padding:24px;box-shadow:0 30px 80px rgba(0,0,0,.7)}
+    .modal-box h3{font-family:var(--fd);font-weight:800;font-size:18px;letter-spacing:.01em;margin-bottom:14px;color:#fff}
+    .modal-box label{font-family:var(--fm);font-size:11px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:8px;display:block}
+    .modal-box input,.modal-box select{width:100%;background:rgba(0,0,0,.4);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:11px 13px;font-size:14px;font-family:inherit;margin-bottom:12px}
+    .modal-box select option{background:#0a0a0a}
+    .modal-acts{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}
   </style>
 </head>
 <body>
@@ -58,7 +96,7 @@
     <div class="hero">
       <span class="no">02 / PROMPT VAULT</span>
       <h1>Prompt 整理</h1>
-      <p>用<b style="color:#fff">縮圖</b>就能一眼看出是什麼提示詞。所有人共用、雲端永久。</p>
+      <p>用<b style="color:#fff">資料夾分類</b>、<b style="color:#fff">多張參考圖</b>、<b style="color:#fff">點縮圖看大圖</b>。所有人共用、雲端永久。</p>
     </div>
 
     <div class="tabs" id="tabs">
@@ -66,20 +104,50 @@
       <button class="tab" data-tab="nb">Nano Banana<span class="c" id="c-nb">0</span></button>
     </div>
 
+    <!-- 資料夾橫向篩選 -->
+    <div class="folder-bar" id="folder-bar">
+      <span class="folder-bar-label">資料夾</span>
+      <!-- 動態插入：全部 / 未分類 / ...user folders / + 新增 -->
+    </div>
+
+    <!-- 排序 + 大小 -->
+    <div class="toolbar-2">
+      <select id="sort" class="sort-sel">
+        <option value="new">最新優先</option>
+        <option value="old">最舊優先</option>
+        <option value="az">名稱 A→Z</option>
+        <option value="za">名稱 Z→A</option>
+      </select>
+      <input id="search" class="search" style="flex:1;background:rgba(0,0,0,.35);color:var(--text);border:1px solid var(--line);border-radius:999px;padding:11px 18px;font-size:14px;font-family:inherit;min-width:200px" placeholder="🔍 搜尋名稱、標籤、提示詞…" />
+      <div class="size-ctrl" title="調整縮圖大小">
+        <span class="ic">▫</span>
+        <input id="size" type="range" min="160" max="420" step="10" value="240" />
+        <span class="ic big">▪</span>
+      </div>
+      <span id="count" class="stat" style="font-family:var(--fm);font-size:11.5px;color:var(--muted)"></span>
+    </div>
+
+    <!-- Composer -->
     <section class="panel">
       <label>名稱 / 標題</label>
       <input id="f-title" type="text" placeholder="例如：賽博龐克下雨夜街景" />
+
+      <label class="block">所屬資料夾</label>
+      <select id="f-folder">
+        <option value="">未分類</option>
+        <!-- 動態插入 -->
+      </select>
+
       <label class="block">提示詞</label>
       <textarea id="f-text" rows="5" placeholder="把提示詞貼在這裡…"></textarea>
+
       <label class="block">標籤（用逗號分隔，可留空）</label>
       <input id="f-tags" type="text" placeholder="例如：cyberpunk, night, neon" />
 
-      <div class="thumb-row">
-        <div class="thumb-box" id="thumb-box" title="點擊上傳縮圖">
-          <span class="ph">📷 點擊<br>上傳縮圖</span>
-          <button type="button" class="thumb-rm" id="thumb-rm" title="移除縮圖">✕</button>
-        </div>
-        <div class="thumb-tip">放一張預覽圖（截圖或產出範例），會自動壓縮。</div>
+      <label class="block">圖片（可上傳<b style="color:#fff">多張</b>，建議第一張當主圖）</label>
+      <div class="imgs-strip" id="imgs-strip">
+        <!-- 動態插入縮圖格 + 新增格 -->
+        <div class="add-cell" id="add-img">📷<br>新增圖片</div>
       </div>
 
       <div class="actions">
@@ -88,20 +156,6 @@
         <button id="save" class="btn primary">＋ 儲存提示詞</button>
       </div>
     </section>
-
-    <div class="actions" style="margin-bottom:8px">
-      <input id="search" class="search" style="flex:1;background:rgba(0,0,0,.35);color:var(--text);border:1px solid var(--line);border-radius:999px;padding:11px 18px;font-size:14px;font-family:inherit" placeholder="🔍 搜尋名稱、標籤、提示詞內容…" />
-      <span id="count" class="stat" style="flex:0 0 auto"></span>
-    </div>
-
-    <div class="grid-bar">
-      <span style="font-family:var(--fm);font-size:11px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase">所有提示詞</span>
-      <div class="size-ctrl" title="調整縮圖大小">
-        <span class="ic">▫</span>
-        <input id="size" type="range" min="160" max="420" step="10" value="240" />
-        <span class="ic big">▪</span>
-      </div>
-    </div>
 
     <div class="grid" id="list"></div>
   </main>
@@ -113,9 +167,12 @@
     var $=function(s){return document.querySelector(s);};
     var tab='mj';
     var KIND={mj:'prompt-mj',nb:'prompt-nb'};
-    var cache={mj:null,nb:null};
+    var cache={mj:[],nb:[]};
+    var folders=[];                  // [{id, label}]
     var editingId=null;
-    var currentThumb=null;
+    var currentImgs=[];              // base64 array for composer
+    var activeFolder='__all__';      // __all__ / __none__ / folder id
+    var sortKey='new';
 
     function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
     function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('show');},1800);}
@@ -123,10 +180,327 @@
     document.addEventListener('jstwins-auth',function(e){
       $('#who').textContent='👤 '+e.detail.user;
       $('#cloud').textContent='● 雲端已連線';$('#cloud').classList.add('live');
-      reload('mj'); reload('nb');
+      reloadAll();
     });
 
-    // 縮圖大小：記住上次設定
+    async function api(path,opts){
+      opts=opts||{}; opts.credentials='same-origin';
+      opts.headers=Object.assign({'Content-Type':'application/json'},opts.headers||{});
+      var r=await fetch(path,opts); var d=await r.json();
+      if(!r.ok) throw new Error(d.error||'HTTP '+r.status);
+      return d;
+    }
+
+    async function reloadAll(){
+      try{
+        var fRes = await api('/api/items?kind=folder');
+        folders = (fRes.items||[]).map(function(it){ return { id: it.id, label: (it.data&&it.data.label)||'未命名資料夾' }; });
+        var mj = await api('/api/items?kind='+KIND.mj);
+        var nb = await api('/api/items?kind='+KIND.nb);
+        cache.mj = mj.items||[];
+        cache.nb = nb.items||[];
+        $('#c-mj').textContent = cache.mj.length;
+        $('#c-nb').textContent = cache.nb.length;
+        renderFolderBar();
+        renderFolderSelect();
+        render();
+      }catch(e){
+        $('#list').innerHTML='<div class="h-empty" style="grid-column:1/-1">載入失敗：'+esc(e.message)+'</div>';
+      }
+    }
+
+    function getImages(d){
+      if (Array.isArray(d.images) && d.images.length) return d.images;
+      if (d.thumbnail) return [d.thumbnail];
+      return [];
+    }
+
+    function renderFolderBar(){
+      var arr = cache[tab];
+      var counts = { __all__: arr.length, __none__: 0 };
+      folders.forEach(function(f){ counts[f.id]=0; });
+      arr.forEach(function(it){
+        var fid = (it.data&&it.data.folder) || '__none__';
+        counts[fid] = (counts[fid]||0) + 1;
+      });
+      var html = '<span class="folder-bar-label">資料夾</span>';
+      var mkChip = function(id, label, count, withRm){
+        var cls = 'folder-chip'+(activeFolder===id?' on':'');
+        var rm = withRm ? '<span class="frm" data-rmfolder="'+id+'" title="重新命名">✎</span><span class="frm" data-delfolder="'+id+'" title="刪除">✕</span>' : '';
+        return '<button class="'+cls+'" data-folder="'+id+'">'+esc(label)+'<span class="cnt">'+(count||0)+'</span>'+rm+'</button>';
+      };
+      html += mkChip('__all__','全部', counts.__all__, false);
+      html += mkChip('__none__','未分類', counts.__none__, false);
+      folders.forEach(function(f){ html += mkChip(f.id, f.label, counts[f.id]||0, true); });
+      html += '<button class="folder-add" id="folder-add">＋ 新增資料夾</button>';
+      $('#folder-bar').innerHTML = html;
+      $('#folder-bar').querySelectorAll('.folder-chip').forEach(function(c){
+        c.addEventListener('click',function(e){
+          if(e.target.dataset.rmfolder){ e.stopPropagation(); renameFolder(e.target.dataset.rmfolder); return; }
+          if(e.target.dataset.delfolder){ e.stopPropagation(); deleteFolder(e.target.dataset.delfolder); return; }
+          activeFolder = c.dataset.folder; renderFolderBar(); render();
+        });
+      });
+      $('#folder-add').addEventListener('click', createFolder);
+    }
+
+    function renderFolderSelect(){
+      var sel = $('#f-folder');
+      sel.innerHTML = '<option value="">未分類</option>' +
+        folders.map(function(f){ return '<option value="'+esc(f.id)+'">'+esc(f.label)+'</option>'; }).join('');
+    }
+
+    function folderLabel(id){
+      if(!id) return '';
+      var f = folders.find(function(x){return x.id===id;});
+      return f ? f.label : '';
+    }
+
+    function sortFn(a,b){
+      var da = a.data||{}, db = b.data||{};
+      if (sortKey==='new') return new Date(b.updated_at||b.created_at) - new Date(a.updated_at||a.created_at);
+      if (sortKey==='old') return new Date(a.updated_at||a.created_at) - new Date(b.updated_at||b.created_at);
+      var ta = (da.title||'').toLowerCase(), tb = (db.title||'').toLowerCase();
+      if (sortKey==='az') return ta.localeCompare(tb);
+      if (sortKey==='za') return tb.localeCompare(ta);
+      return 0;
+    }
+
+    function render(){
+      var q=$('#search').value.trim().toLowerCase();
+      var arr=(cache[tab]||[]).slice();
+      // 資料夾過濾
+      if (activeFolder==='__none__') arr = arr.filter(function(it){ return !(it.data&&it.data.folder); });
+      else if (activeFolder!=='__all__') arr = arr.filter(function(it){ return (it.data&&it.data.folder)===activeFolder; });
+      // 搜尋
+      var items = arr.filter(function(it){
+        var d=it.data||{};
+        if(!q) return true;
+        return ((d.title||'')+' '+(d.text||'')+' '+((d.tags||[]).join(' '))).toLowerCase().indexOf(q)>=0;
+      });
+      // 排序
+      items.sort(sortFn);
+
+      $('#count').textContent=items.length+' 筆';
+      var box=$('#list');
+      if(!items.length){ box.innerHTML='<div class="h-empty" style="grid-column:1/-1">'+(q?'找不到符合的提示詞。':'這個分類還沒有提示詞。')+'</div>'; return; }
+      box.innerHTML=items.map(function(it){
+        var d=it.data||{};
+        var imgs=getImages(d);
+        var when=new Date(it.updated_at||it.created_at).toLocaleString('zh-TW',{month:'numeric',day:'numeric'});
+        var by=it.created_by?esc(it.created_by):'';
+        var tags=(d.tags||[]).slice(0,4).map(function(g){return '<span class="chip">'+esc(g)+'</span>';}).join('');
+        var thumb = imgs.length
+          ? '<div class="cv-thumb" data-id="'+it.id+'" style="background-image:url(\''+esc(imgs[0])+'\')" title="點擊看大圖">'+
+              (imgs.length>1 ? '<div class="cv-cnt">▦ '+imgs.length+'</div>' : '')+
+              (d.folder ? '<div class="cv-fld">'+esc(folderLabel(d.folder))+'</div>' : '')+
+            '</div>'
+          : '<div class="cv-thumb empty">無圖</div>';
+        return '<div class="card-v" data-id="'+it.id+'">'+thumb+
+          '<div class="cv-body">'+
+            '<div class="cv-name'+(d.title?'':' empty')+'">'+esc(d.title||'未命名')+'</div>'+
+            '<div class="cv-meta"><span>'+when+'</span><span>'+by+'</span></div>'+
+            (tags?'<div class="cv-tags">'+tags+'</div>':'')+
+          '</div>'+
+          '<div class="cv-acts">'+
+            '<button class="btn sm primary copy">⧉ 複製 Prompt</button>'+
+            '<button class="btn sm move">移動</button>'+
+            '<button class="btn sm edit">✎</button>'+
+            '<button class="btn sm ghost danger del" title="刪除">✕</button>'+
+          '</div>'+
+        '</div>';
+      }).join('');
+    }
+
+    // ── Composer 多張圖 ──
+    function renderImgsStrip(){
+      var strip = $('#imgs-strip');
+      var html = currentImgs.map(function(src, idx){
+        return '<div class="img-cell"><img src="'+esc(src)+'" data-idx="'+idx+'" /><button class="x" data-rm="'+idx+'" type="button" title="移除">✕</button></div>';
+      }).join('');
+      html += '<div class="add-cell" id="add-img">📷<br>新增圖片</div>';
+      strip.innerHTML = html;
+      strip.querySelectorAll('img').forEach(function(im){
+        im.addEventListener('click', function(){ JSTLightbox.open(currentImgs, parseInt(im.dataset.idx,10)); });
+        im.style.cursor='zoom-in';
+      });
+      strip.querySelectorAll('.x').forEach(function(b){
+        b.addEventListener('click', function(e){
+          e.stopPropagation();
+          var i = parseInt(b.dataset.rm, 10);
+          currentImgs.splice(i, 1);
+          renderImgsStrip();
+        });
+      });
+      $('#add-img').addEventListener('click', pickImage);
+    }
+    async function pickImage(){
+      var f = await JSTImg.pickFile(); if(!f) return;
+      try {
+        var url = await JSTImg.resize(f, 800, 600, 0.82);
+        currentImgs.push(url);
+        renderImgsStrip();
+        toast('已加入第 '+currentImgs.length+' 張');
+      } catch(e){ toast('❌ '+e.message); }
+    }
+
+    function resetComposer(){
+      editingId=null; $('#f-title').value=''; $('#f-text').value=''; $('#f-tags').value='';
+      $('#f-folder').value='';
+      currentImgs = [];
+      renderImgsStrip();
+      $('#save').textContent='＋ 儲存提示詞';
+      $('#cancel').style.display='none';
+      $('#flag').textContent='';
+    }
+
+    async function saveItem(){
+      var title=$('#f-title').value.trim();
+      var text=$('#f-text').value.trim();
+      if(!text){ toast('請貼提示詞'); $('#f-text').focus(); return; }
+      var tags=$('#f-tags').value.split(',').map(function(s){return s.trim();}).filter(Boolean);
+      var folder=$('#f-folder').value || '';
+      var data={
+        title:title,
+        text:text,
+        tags:tags,
+        images: currentImgs.slice(),
+        folder: folder
+      };
+      var btn=$('#save'); btn.disabled=true;
+      try{
+        if(editingId){
+          await api('/api/items/'+editingId,{method:'PUT',body:JSON.stringify({data:data})});
+          toast('✓ 已更新');
+        }else{
+          await api('/api/items',{method:'POST',body:JSON.stringify({kind:KIND[tab],data:data})});
+          toast('✓ 已存到雲端');
+        }
+        resetComposer(); reloadAll();
+      }catch(e){ toast('❌ '+e.message); }
+      finally{ btn.disabled=false; }
+    }
+
+    // ── 資料夾管理 ──
+    async function createFolder(){
+      openModal({
+        title: '新增資料夾',
+        fields: [{ key:'label', label:'名稱', placeholder:'例如：恐怖寫實' }],
+        okLabel: '建立',
+        onOk: async function(v){
+          var name = (v.label||'').trim();
+          if (!name) { toast('請輸入名稱'); return false; }
+          try{
+            await api('/api/items',{method:'POST',body:JSON.stringify({kind:'folder',data:{label:name}})});
+            toast('✓ 已建立資料夾「'+name+'」');
+            await reloadAll();
+            return true;
+          }catch(e){ toast('❌ '+e.message); return false; }
+        }
+      });
+    }
+    async function renameFolder(id){
+      var f = folders.find(function(x){return x.id===id;}); if(!f) return;
+      openModal({
+        title:'重新命名',
+        fields:[{key:'label', label:'新名稱', value:f.label}],
+        okLabel:'更新',
+        onOk: async function(v){
+          var name=(v.label||'').trim(); if(!name){ toast('請輸入名稱'); return false; }
+          try{
+            await api('/api/items/'+id,{method:'PUT',body:JSON.stringify({data:{label:name}})});
+            toast('✓ 已更新');
+            await reloadAll();
+            return true;
+          }catch(e){ toast('❌ '+e.message); return false; }
+        }
+      });
+    }
+    async function deleteFolder(id){
+      var f = folders.find(function(x){return x.id===id;}); if(!f) return;
+      // 看有幾筆 prompt 在裡面
+      var n = (cache.mj.concat(cache.nb)).filter(function(it){ return (it.data&&it.data.folder)===id; }).length;
+      var msg = '刪除資料夾「'+f.label+'」？\n' + (n? '裡面的 '+n+' 筆提示詞會變成「未分類」（不會被刪掉）。' : '裡面是空的。');
+      if (!confirm(msg)) return;
+      try{
+        // 先把指到這個資料夾的 prompt 改回 未分類
+        if (n) {
+          var promises = (cache.mj.concat(cache.nb))
+            .filter(function(it){ return (it.data&&it.data.folder)===id; })
+            .map(function(it){
+              var d = Object.assign({}, it.data, { folder: '' });
+              return api('/api/items/'+it.id,{method:'PUT',body:JSON.stringify({data:d})});
+            });
+          await Promise.all(promises);
+        }
+        await api('/api/items/'+id,{method:'DELETE'});
+        toast('✓ 已刪除');
+        if (activeFolder===id) activeFolder='__all__';
+        await reloadAll();
+      }catch(e){ toast('❌ '+e.message); }
+    }
+    async function moveItem(id){
+      var arr=cache[tab]; var it=arr.find(function(x){return x.id===id;}); if(!it) return;
+      openModal({
+        title: '移動到資料夾',
+        fields: [{ key:'folder', label:'資料夾', type:'select', value:(it.data&&it.data.folder)||'' }],
+        okLabel: '移動',
+        onOk: async function(v){
+          var d = Object.assign({}, it.data||{}, { folder: v.folder||'' });
+          try{
+            await api('/api/items/'+id,{method:'PUT',body:JSON.stringify({data:d})});
+            toast('✓ 已移動');
+            await reloadAll();
+            return true;
+          }catch(e){ toast('❌ '+e.message); return false; }
+        }
+      });
+    }
+
+    // ── 小型 Modal ──
+    function openModal(opts){
+      var bg = document.createElement('div'); bg.className='modal-bg';
+      var box = document.createElement('div'); box.className='modal-box';
+      var html='<h3>'+esc(opts.title)+'</h3>';
+      opts.fields.forEach(function(f){
+        html += '<label>'+esc(f.label)+'</label>';
+        if (f.type==='select') {
+          html += '<select data-key="'+f.key+'"><option value="">未分類</option>' +
+            folders.map(function(ff){ return '<option value="'+esc(ff.id)+'"'+(ff.id===f.value?' selected':'')+'>'+esc(ff.label)+'</option>'; }).join('') + '</select>';
+        } else {
+          html += '<input type="text" data-key="'+f.key+'" value="'+esc(f.value||'')+'" placeholder="'+esc(f.placeholder||'')+'" />';
+        }
+      });
+      html += '<div class="modal-acts"><button class="btn ghost sm" data-cancel>取消</button><button class="btn primary sm" data-ok>'+esc(opts.okLabel||'確定')+'</button></div>';
+      box.innerHTML = html;
+      bg.appendChild(box);
+      document.body.appendChild(bg);
+
+      function close(){ bg.remove(); }
+      box.querySelector('[data-cancel]').addEventListener('click', close);
+      bg.addEventListener('click', function(e){ if(e.target===bg) close(); });
+      box.querySelector('[data-ok]').addEventListener('click', async function(){
+        var vals = {};
+        box.querySelectorAll('[data-key]').forEach(function(el){ vals[el.dataset.key] = el.value; });
+        var ok = await opts.onOk(vals);
+        if (ok !== false) close();
+      });
+      var first = box.querySelector('[data-key]'); if(first) first.focus();
+    }
+
+    // ── 事件 ──
+    document.getElementById('tabs').addEventListener('click',function(e){
+      var b=e.target.closest('.tab'); if(!b) return;
+      tab=b.dataset.tab;
+      document.querySelectorAll('.tab').forEach(function(x){x.classList.toggle('on',x===b);});
+      resetComposer(); renderFolderBar(); render();
+    });
+    $('#save').addEventListener('click',saveItem);
+    $('#cancel').addEventListener('click',resetComposer);
+    $('#search').addEventListener('input',render);
+    $('#sort').addEventListener('change',function(e){ sortKey=e.target.value; render(); });
+
+    // 縮圖大小：記住偏好
     (function(){
       var sizeInp=$('#size');
       var saved=localStorage.getItem('jst-pv-size');
@@ -138,137 +512,44 @@
       });
     })();
 
-    async function api(path,opts){
-      opts=opts||{}; opts.credentials='same-origin';
-      opts.headers=Object.assign({'Content-Type':'application/json'},opts.headers||{});
-      var r=await fetch(path,opts); var d=await r.json();
-      if(!r.ok) throw new Error(d.error||'HTTP '+r.status);
-      return d;
-    }
-
-    async function reload(which){
-      try{
-        var d=await api('/api/items?kind='+KIND[which]);
-        cache[which]=d.items||[];
-        $('#c-'+which).textContent=cache[which].length;
-        if(which===tab) render();
-      }catch(e){ if(which===tab) $('#list').innerHTML='<div class="h-empty" style="grid-column:1/-1">載入失敗：'+esc(e.message)+'</div>'; }
-    }
-
-    function render(){
-      var q=$('#search').value.trim().toLowerCase();
-      var arr=cache[tab]||[];
-      var items=arr.filter(function(it){
-        var d=it.data||{};
-        if(!q) return true;
-        return ((d.title||'')+' '+(d.text||'')+' '+((d.tags||[]).join(' '))).toLowerCase().indexOf(q)>=0;
-      });
-      $('#count').textContent=items.length+' 筆';
-      var box=$('#list');
-      if(!items.length){ box.innerHTML='<div class="h-empty" style="grid-column:1/-1">'+(q?'找不到符合的提示詞。':'這個分類還沒有提示詞。')+'</div>'; return; }
-      box.innerHTML=items.map(function(it){
-        var d=it.data||{};
-        var when=new Date(it.updated_at||it.created_at).toLocaleString('zh-TW',{month:'numeric',day:'numeric'});
-        var by=it.created_by?esc(it.created_by):'';
-        var tags=(d.tags||[]).slice(0,4).map(function(g){return '<span class="chip">'+esc(g)+'</span>';}).join('');
-        var thumb=d.thumbnail
-          ? '<div class="cv-thumb" style="background-image:url(\''+esc(d.thumbnail)+'\')"></div>'
-          : '<div class="cv-thumb empty">無縮圖</div>';
-        return '<div class="card-v" data-id="'+it.id+'">'+thumb+
-          '<div class="cv-body">'+
-            '<div class="cv-name'+(d.title?'':' empty')+'">'+esc(d.title||'未命名')+'</div>'+
-            '<div class="cv-meta"><span>'+when+'</span><span>'+by+'</span></div>'+
-            (tags?'<div class="cv-tags">'+tags+'</div>':'')+
-          '</div>'+
-          '<div class="cv-acts">'+
-            '<button class="btn sm primary copy">⧉ 複製 Prompt</button>'+
-            '<button class="btn sm edit">✎ 編輯</button>'+
-            '<button class="btn sm ghost danger del" title="刪除">✕</button>'+
-          '</div>'+
-        '</div>';
-      }).join('');
-    }
-
-    function setThumb(dataUrl){
-      currentThumb=dataUrl||null;
-      var box=$('#thumb-box');
-      if(currentThumb){
-        var existing=box.querySelector('img'); if(existing) existing.remove();
-        var img=document.createElement('img'); img.src=currentThumb;
-        box.insertBefore(img, box.querySelector('.thumb-rm'));
-        box.classList.add('has-thumb');
-      } else {
-        var img2=box.querySelector('img'); if(img2) img2.remove();
-        box.classList.remove('has-thumb');
-      }
-    }
-
-    function resetComposer(){
-      editingId=null; $('#f-title').value=''; $('#f-text').value=''; $('#f-tags').value='';
-      setThumb(null);
-      $('#save').textContent='＋ 儲存提示詞';
-      $('#cancel').style.display='none';
-      $('#flag').textContent='';
-    }
-
-    async function pickThumb(){
-      var f=await JSTImg.pickFile(); if(!f) return;
-      try{ var url=await JSTImg.resize(f, 640, 480, 0.82); setThumb(url); toast('已選好縮圖'); }
-      catch(e){ toast('❌ '+e.message); }
-    }
-
-    async function saveItem(){
-      var title=$('#f-title').value.trim();
-      var text=$('#f-text').value.trim();
-      if(!text){ toast('請貼提示詞'); $('#f-text').focus(); return; }
-      var tags=$('#f-tags').value.split(',').map(function(s){return s.trim();}).filter(Boolean);
-      var data={title:title,text:text,tags:tags,thumbnail:currentThumb||''};
-      var btn=$('#save'); btn.disabled=true;
-      try{
-        if(editingId){
-          await api('/api/items/'+editingId,{method:'PUT',body:JSON.stringify({data:data})});
-          toast('✓ 已更新');
-        }else{
-          await api('/api/items',{method:'POST',body:JSON.stringify({kind:KIND[tab],data:data})});
-          toast('✓ 已存到雲端 · '+(tab==='mj'?'Midjourney':'Nano Banana'));
-        }
-        resetComposer(); reload(tab);
-      }catch(e){ toast('❌ '+e.message); }
-      finally{ btn.disabled=false; }
-    }
-
-    document.getElementById('tabs').addEventListener('click',function(e){
-      var b=e.target.closest('.tab'); if(!b) return;
-      tab=b.dataset.tab;
-      document.querySelectorAll('.tab').forEach(function(x){x.classList.toggle('on',x===b);});
-      resetComposer(); render();
-    });
-    $('#save').addEventListener('click',saveItem);
-    $('#cancel').addEventListener('click',resetComposer);
-    $('#search').addEventListener('input',render);
-    $('#thumb-box').addEventListener('click',function(e){ if(e.target.id==='thumb-rm') return; pickThumb(); });
-    $('#thumb-rm').addEventListener('click',function(e){ e.stopPropagation(); setThumb(null); });
-
+    // 列表點擊
     $('#list').addEventListener('click',async function(e){
+      var thumb = e.target.closest('.cv-thumb');
+      if (thumb && !thumb.classList.contains('empty')){
+        var id = thumb.dataset.id;
+        var it = (cache[tab]||[]).find(function(x){return x.id===id;});
+        if (it){
+          var imgs = getImages(it.data||{});
+          if (imgs.length) JSTLightbox.open(imgs, 0, (it.data&&it.data.title)||'');
+        }
+        return;
+      }
       var item=e.target.closest('.card-v'); if(!item) return;
       var id=item.dataset.id; var it=(cache[tab]||[]).find(function(x){return x.id===id;}); if(!it) return;
       var d=it.data||{};
       if(e.target.classList.contains('copy')){
         navigator.clipboard.writeText(d.text||'').then(function(){toast('⧉ 已複製：'+(d.title||'提示詞'));});
+      } else if(e.target.classList.contains('move')){
+        moveItem(id);
       } else if(e.target.classList.contains('edit')){
         editingId=id;
         $('#f-title').value=d.title||''; $('#f-text').value=d.text||''; $('#f-tags').value=(d.tags||[]).join(', ');
-        setThumb(d.thumbnail||null);
+        $('#f-folder').value=d.folder||'';
+        currentImgs = getImages(d).slice();
+        renderImgsStrip();
         $('#save').textContent='✓ 更新提示詞';
         $('#cancel').style.display='inline-block';
         $('#flag').textContent='編輯中…';
         window.scrollTo({top:0,behavior:'smooth'}); $('#f-title').focus();
       } else if(e.target.classList.contains('del')){
         if(!confirm('刪除這筆？所有人都會看不到。')) return;
-        try{ await api('/api/items/'+id,{method:'DELETE'}); if(editingId===id) resetComposer(); reload(tab); toast('已刪除'); }
+        try{ await api('/api/items/'+id,{method:'DELETE'}); if(editingId===id) resetComposer(); reloadAll(); toast('已刪除'); }
         catch(err){ toast('❌ '+err.message); }
       }
     });
+
+    // 初始 composer 圖片區
+    renderImgsStrip();
   })();
   </script>
 </body>

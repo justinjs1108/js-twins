@@ -8,8 +8,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;500;800;900&family=Hanken+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/tool.css" />
+  <link rel="stylesheet" href="/css/lightbox.css" />
   <script src="/js/guard.js"></script>
   <script src="/js/img.js"></script>
+  <script src="/js/lightbox.js"></script>
   <style>
     .editing-flag{font-family:var(--fm);font-size:11.5px;letter-spacing:.1em;color:var(--muted);min-width:0;flex:1}
     .author{font-family:var(--fm);font-size:10.5px;color:var(--muted)}
@@ -109,7 +111,7 @@
         var edited=it.updated_at&&it.created_at&&it.updated_at!==it.created_at?' · 已編輯':'';
         var by=it.created_by?'<span class="author">— '+esc(it.created_by)+'</span>':'';
         var thumb=d.thumbnail
-          ? '<div class="h-thumb" style="background-image:url(\''+esc(d.thumbnail)+'\')"></div>'
+          ? '<div class="h-thumb lb-clickable" data-thumb="'+esc(d.thumbnail)+'" style="background-image:url(\''+esc(d.thumbnail)+'\')" title="點擊看大圖"></div>'
           : '<div class="h-thumb empty">無縮圖</div>';
         return '<div class="h-item" data-id="'+it.id+'">'+thumb+
           '<div class="h-main">'+
@@ -170,6 +172,9 @@
     $('#thumb-rm').addEventListener('click',function(e){ e.stopPropagation(); setThumb(null); });
 
     $('#list').addEventListener('click',async function(e){
+      // 點縮圖開大圖
+      var th = e.target.closest('.h-thumb.lb-clickable');
+      if (th && th.dataset.thumb) { e.stopPropagation(); JSTLightbox.open([th.dataset.thumb]); return; }
       var item=e.target.closest('.h-item'); if(!item) return;
       var id=item.dataset.id; var it=cache.find(function(x){return x.id===id;}); if(!it) return;
       var d=it.data||{};
