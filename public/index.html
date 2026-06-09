@@ -7,7 +7,7 @@
   <meta name="description" content="JS_TWINS — 黑白電影感創作者平台。從劇本到分鏡、提示詞到翻譯，一站完成。" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@100;300;500;800;900&family=Hanken+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@100;300;500;800;900&family=Hanken+Grotesk:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="/css/bg-cyber.css" />
   <script src="/js/bg-cyber.js"></script>
@@ -35,13 +35,23 @@
   <main>
     <!-- ───────── HERO ───────── -->
     <section class="hero">
+      <div class="hero-meta reveal" style="--d:.08s">
+        <span class="meta-num">N° 001</span>
+        <span class="meta-dot">·</span>
+        <span class="meta-tag">創作者工作室 / CREATOR STUDIO</span>
+        <span class="meta-dot">·</span>
+        <span class="meta-num">MMXXVI</span>
+      </div>
+
       <div class="hero-copy">
-        <p class="eyebrow reveal" style="--d:.1s">JS_TWINS · 創作者工作室</p>
         <h1 class="hero-title">
           <span class="thin reveal" style="--d:.18s">JS</span>
           <span class="fat reveal" style="--d:.28s">TWINS</span><i class="dot reveal" style="--d:.5s">.</i>
         </h1>
-        <p class="hero-sub reveal" style="--d:.42s">從劇本到分鏡、提示詞到翻譯 —— 一個電影感的創作工作室，六大工具，一站完成。</p>
+        <p class="hero-lede reveal" style="--d:.42s">
+          一個<i>會說故事</i>的工作室。<br />
+          從劇本到分鏡、提示詞到翻譯 —— <span class="lede-em">六個工具，一站完成。</span>
+        </p>
         <a class="cta reveal" href="#tools" style="--d:.54s">
           <span class="cta-label">進入工作室</span>
           <span class="cta-knob" aria-hidden="true">
@@ -60,23 +70,19 @@
 
       <div class="hero-foot reveal" style="--d:.7s">
         <div class="hf-nav">
-          <button>◯ PREV</button>
+          <span class="idx-label">CHAPTER</span>
           <span class="idx">01 <i>/</i> 06</span>
-          <button>NEXT ◯</button>
         </div>
-        <div class="social">
-          <a href="#" aria-label="Facebook">FB</a>
-          <a href="#" aria-label="Twitter">TW</a>
-          <a href="#" aria-label="Instagram">IG</a>
-        </div>
+        <div class="hero-credit"><i>directed by</i> JS TWINS</div>
       </div>
     </section>
 
     <!-- ───────── HUB / 六大工具 ───────── -->
     <section class="tools" id="tools">
       <header class="tools-head">
-        <p class="eyebrow">@ TOOLS — 六大工具</p>
-        <h2>一個工作室，<br />六種創作。</h2>
+        <p class="eyebrow">@ TOOLS · INDEX</p>
+        <h2>一個工作室，<br /><i>六種</i>創作。</h2>
+        <p class="tools-sub">每一個工具，都是為了讓你<br /><i>少做一件雜事、多寫一句台詞。</i></p>
       </header>
 
       <ul class="tool-list">
@@ -120,14 +126,19 @@
     </section>
 
     <section class="about" id="about">
-      <p class="eyebrow">@ ABOUT US</p>
-      <p class="about-lead">JS_TWINS 是一個把寫作、視覺、影像分析全部收在一起的創作者工作室。黑與白，只留下故事本身。</p>
+      <p class="eyebrow">@ MANIFESTO</p>
+      <p class="about-lead">
+        我們相信<br />
+        <i>故事，</i>還是最古老的科技。<br />
+        其他的，我們幫你處理。
+      </p>
+      <p class="about-foot">JS TWINS · CREATOR STUDIO · MMXXVI</p>
     </section>
   </main>
 
   <footer class="foot">
     <span>JS_TWINS</span>
-    <span class="foot-mid">創作者工作室 · 2026</span>
+    <span class="foot-mid"><i>directed by</i> JS TWINS · MMXXVI</span>
     <span class="foot-yr"></span>
   </footer>
 
