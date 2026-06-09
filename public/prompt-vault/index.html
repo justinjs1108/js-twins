@@ -141,10 +141,12 @@
       <label>名稱 / 標題</label>
       <input id="f-title" type="text" placeholder="例如：賽博龐克下雨夜街景" />
 
-      <label class="block">所屬資料夾</label>
-      <select id="f-folder">
-        <option value="">未分類</option>
-      </select>
+      <div id="folder-field">
+        <label class="block">所屬資料夾</label>
+        <select id="f-folder">
+          <option value="">未分類</option>
+        </select>
+      </div>
 
       <label class="block">提示詞</label>
       <textarea id="f-text" rows="5" placeholder="把提示詞貼在這裡…"></textarea>
@@ -290,6 +292,9 @@
     }
 
     function renderFolderSelect(){
+      var field = $('#folder-field');
+      if (tab !== 'mj') { field.style.display = 'none'; return; }
+      field.style.display = '';
       var sel = $('#f-folder');
       sel.innerHTML = '<option value="">未分類</option>' +
         currentFolders().map(function(f){ return '<option value="'+esc(f.id)+'">'+esc(f.label)+'</option>'; }).join('');
@@ -303,6 +308,15 @@
 
     function renderCrumb(){
       var box = $('#crumb');
+      // Nano Banana：無資料夾，顯示簡單標題
+      if (tab === 'nb') {
+        box.innerHTML =
+          '<div class="crumb-root">'+
+            '<div class="title"><span class="ico">'+FOLDER_SVG_BIG+'</span><span>Nano Banana · 全部 Prompt</span></div>'+
+            '<div class="sub">所有提示詞</div>'+
+          '</div>';
+        return;
+      }
       if (view==='root'){
         box.innerHTML =
           '<div class="crumb-root">'+
@@ -349,6 +363,39 @@
 
     function render(){
       var box=$('#list');
+
+      // Nano Banana：直接顯示全部 prompt（不分資料夾）
+      if (tab === 'nb') {
+        var arr2 = (cache.nb||[]).slice();
+        arr2.sort(sortFn);
+        $('#count').textContent = arr2.length + ' 筆';
+        if (!arr2.length) { box.innerHTML='<div class="h-empty" style="grid-column:1/-1">還沒有 Nano Banana 提示詞，從上面新增吧。</div>'; return; }
+        box.innerHTML = arr2.map(function(it){
+          var d=it.data||{};
+          var imgs=getImages(d);
+          var when=new Date(it.updated_at||it.created_at).toLocaleString('zh-TW',{month:'numeric',day:'numeric'});
+          var by=it.created_by?esc(it.created_by):'';
+          var tags=(d.tags||[]).slice(0,4).map(function(g){return '<span class="chip">'+esc(g)+'</span>';}).join('');
+          var thumb = imgs.length
+            ? '<div class="cv-thumb" data-id="'+it.id+'" style="background-image:url(\''+esc(imgs[0])+'\')" title="點擊看大圖">'+
+                (imgs.length>1 ? '<div class="cv-cnt">▦ '+imgs.length+'</div>' : '')+
+              '</div>'
+            : '<div class="cv-thumb empty">無圖</div>';
+          return '<div class="card-v" data-id="'+it.id+'">'+thumb+
+            '<div class="cv-body">'+
+              '<div class="cv-name'+(d.title?'':' empty')+'">'+esc(d.title||'未命名')+'</div>'+
+              '<div class="cv-meta"><span>'+when+'</span><span>'+by+'</span></div>'+
+              (tags?'<div class="cv-tags">'+tags+'</div>':'')+
+            '</div>'+
+            '<div class="cv-acts">'+
+              '<button class="btn sm primary copy">⧉ 複製 Prompt</button>'+
+              '<button class="btn sm edit">✎</button>'+
+              '<button class="btn sm ghost danger del" title="刪除">✕</button>'+
+            '</div>'+
+          '</div>';
+        }).join('');
+        return;
+      }
 
       if (view==='root'){
         // 列出所有資料夾：user folders 在前 → 未分類 → ＋ 新增
@@ -567,7 +614,7 @@
       var text=$('#f-text').value.trim();
       if(!text){ toast('請貼提示詞'); $('#f-text').focus(); return; }
       var tags=$('#f-tags').value.split(',').map(function(s){return s.trim();}).filter(Boolean);
-      var folder=$('#f-folder').value || '';
+      var folder = (tab === 'mj') ? ($('#f-folder').value || '') : '';
       var data={ title:title, text:text, tags:tags, images: currentImgs.slice(), folder: folder };
       var btn=$('#save'); btn.disabled=true;
       try{
