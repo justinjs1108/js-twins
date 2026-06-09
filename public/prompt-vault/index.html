@@ -19,23 +19,25 @@
     .tab .c{opacity:.5;margin-left:7px}
     .editing-flag{font-family:var(--fm);font-size:11.5px;letter-spacing:.1em;color:var(--muted);min-width:0;flex:1}
 
-    /* ── 資料夾橫向篩選列 ── */
-    .folder-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0 14px;padding:10px 0;border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft)}
-    .folder-bar-label{font-family:var(--fm);font-size:10.5px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-right:6px}
-    .folder-chip{font-family:var(--fm);font-size:11.5px;letter-spacing:.04em;padding:7px 14px;border-radius:999px;background:var(--glass);border:1px solid var(--line);color:var(--text-2);cursor:pointer;transition:all .18s;display:inline-flex;align-items:center;gap:6px;user-select:none}
-    .folder-chip:hover{color:#fff;border-color:rgba(255,255,255,.4)}
-    .folder-chip.on{background:#fff;color:#000;border-color:#fff;font-weight:500}
-    .folder-chip .cnt{opacity:.55;font-size:10.5px}
-    .folder-chip .frm{margin-left:6px;color:var(--muted);font-size:11px}
-    .folder-chip.on .frm{color:rgba(0,0,0,.5)}
-    .folder-chip:hover .frm{color:#fff}
-    .folder-add{font-family:var(--fm);font-size:11px;letter-spacing:.1em;text-transform:uppercase;background:none;border:1px dashed var(--line);color:var(--muted);padding:7px 14px;border-radius:999px;cursor:pointer;transition:all .18s}
-    .folder-add:hover{color:#fff;border-color:rgba(255,255,255,.4)}
+    /* ── Composer 多張圖片 ── */
+    .imgs-strip{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .imgs-strip .img-cell{position:relative;width:96px;height:72px;border-radius:8px;overflow:hidden;border:1px solid var(--line);background:rgba(0,0,0,.4)}
+    .imgs-strip .img-cell img{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in}
+    .imgs-strip .img-cell .x{position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.75);border:1px solid var(--line);color:#fff;font-size:12px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+    .imgs-strip .add-cell{width:96px;height:72px;border-radius:8px;border:1.5px dashed var(--line);display:grid;place-items:center;cursor:pointer;color:var(--muted);font-family:var(--fm);font-size:11px;letter-spacing:.06em;line-height:1.5;text-align:center;transition:all .18s}
+    .imgs-strip .add-cell:hover{color:#fff;border-color:rgba(255,255,255,.4)}
 
-    /* ── 排序 + 大小拉條 ── */
+    /* ── 麵包屑 ── */
+    .crumb{display:flex;gap:10px;align-items:center;margin:24px 0 14px;font-family:var(--fm);font-size:12px;letter-spacing:.1em;color:var(--muted);flex-wrap:wrap}
+    .crumb a{cursor:pointer;color:var(--text-2);text-decoration:none;padding:6px 10px;border-radius:7px;transition:all .18s}
+    .crumb a:hover{color:#fff;background:rgba(255,255,255,.05)}
+    .crumb a.now{color:#fff;font-weight:500}
+    .crumb .sep{color:var(--muted);opacity:.55}
+    .crumb .right{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+    /* ── 工具列（排序 / 搜尋 / 大小）在 composer 下方 ── */
     .toolbar-2{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:0 0 16px}
-    .toolbar-2 .sp{flex:1}
-    .sort-sel{font-family:var(--fm);font-size:12px;letter-spacing:.06em;background:rgba(0,0,0,.4);color:var(--text);border:1px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer}
+    .sort-sel{font-family:var(--fm);font-size:12px;letter-spacing:.06em;background:rgba(0,0,0,.4);color:var(--text);border:1px solid var(--line);border-radius:999px;padding:9px 14px;cursor:pointer}
     .sort-sel:focus{outline:none;border-color:rgba(255,255,255,.4)}
     .size-ctrl{display:flex;align-items:center;gap:10px;font-family:var(--fm);font-size:10.5px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
     .size-ctrl .ic{font-size:12px;line-height:1}.size-ctrl .ic.big{font-size:18px}
@@ -44,22 +46,34 @@
     .size-ctrl input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15)}
     .size-ctrl input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;border:0;cursor:pointer}
 
-    /* ── Composer 多張圖片 ── */
-    .imgs-strip{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
-    .imgs-strip .img-cell{position:relative;width:96px;height:72px;border-radius:8px;overflow:hidden;border:1px solid var(--line);background:rgba(0,0,0,.4)}
-    .imgs-strip .img-cell img{width:100%;height:100%;object-fit:cover;display:block}
-    .imgs-strip .img-cell .x{position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.75);border:1px solid var(--line);color:#fff;font-size:12px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
-    .imgs-strip .add-cell{width:96px;height:72px;border-radius:8px;border:1.5px dashed var(--line);display:grid;place-items:center;cursor:pointer;color:var(--muted);font-family:var(--fm);font-size:11px;letter-spacing:.06em;line-height:1.5;text-align:center;transition:all .18s}
-    .imgs-strip .add-cell:hover{color:#fff;border-color:rgba(255,255,255,.4)}
-
-    /* ── 網格卡片 ── */
+    /* ── 網格 ── */
     .grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(var(--card-min,240px),1fr));transition:grid-template-columns .25s var(--ease)}
+
+    /* ── 資料夾卡片 ── */
+    .card-folder{border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.01));overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:border-color .25s,transform .25s,box-shadow .25s;position:relative}
+    .card-folder:hover{border-color:rgba(255,255,255,.4);transform:translateY(-3px);box-shadow:0 14px 32px rgba(0,0,0,.5)}
+    .card-folder .fd-icon{width:100%;aspect-ratio:4/3;display:grid;place-items:center;background:repeating-linear-gradient(45deg,rgba(255,255,255,.018) 0 12px,rgba(255,255,255,.038) 12px 24px);position:relative}
+    .card-folder .fd-icon svg{width:46%;height:46%;color:#fff;opacity:.88;filter:drop-shadow(0 6px 18px rgba(0,0,0,.6))}
+    .card-folder.uncat .fd-icon svg{opacity:.6}
+    .card-folder .fd-body{padding:14px 16px 12px;display:flex;align-items:center;gap:10px}
+    .card-folder .fd-name{font-family:var(--fd);font-weight:800;font-size:16px;letter-spacing:-.005em;color:var(--text);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .card-folder .fd-count{font-family:var(--fm);font-size:11px;color:var(--muted);letter-spacing:.06em}
+    .card-folder .fd-acts{padding:0 12px 12px;display:flex;gap:6px}
+    .card-folder .fd-acts .btn{flex:1;padding:7px 8px;font-size:10.5px;letter-spacing:.06em}
+    .card-folder .fd-acts .btn.danger{flex:0 0 auto;padding:7px 10px}
+    /* 「＋ 新增資料夾」卡 */
+    .card-add{border:1.5px dashed var(--line);border-radius:14px;background:transparent;cursor:pointer;display:grid;place-items:center;min-height:240px;transition:all .25s}
+    .card-add:hover{border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.02)}
+    .card-add .ico{font-family:var(--fd);font-weight:300;font-size:42px;color:var(--muted);line-height:1}
+    .card-add .lbl{font-family:var(--fm);font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+    .card-add:hover .ico,.card-add:hover .lbl{color:#fff}
+
+    /* ── 提示詞卡片 ── */
     .card-v{border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.01));overflow:hidden;display:flex;flex-direction:column;transition:border-color .25s,transform .25s,box-shadow .25s;position:relative}
     .card-v:hover{border-color:rgba(255,255,255,.4);transform:translateY(-3px);box-shadow:0 14px 32px rgba(0,0,0,.5)}
     .card-v .cv-thumb{width:100%;aspect-ratio:4/3;background:rgba(0,0,0,.55) center/cover no-repeat;position:relative;cursor:zoom-in;display:block}
     .card-v .cv-thumb.empty{display:grid;place-items:center;color:var(--muted);font-family:var(--fm);font-size:11px;letter-spacing:.16em;text-transform:uppercase;background:repeating-linear-gradient(135deg,rgba(255,255,255,.02) 0 10px,rgba(255,255,255,.04) 10px 20px);cursor:default}
     .card-v .cv-cnt{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.7);color:#fff;font-family:var(--fm);font-size:10.5px;letter-spacing:.06em;padding:3px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.18)}
-    .card-v .cv-fld{position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,.7);color:rgba(255,255,255,.85);font-family:var(--fm);font-size:10px;letter-spacing:.06em;padding:3px 9px;border-radius:999px;border:1px solid rgba(255,255,255,.18);max-width:80%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .card-v .cv-body{padding:14px 16px 4px}
     .card-v .cv-name{font-family:var(--fd);font-weight:800;font-size:16px;letter-spacing:-.005em;line-height:1.3;color:var(--text)}
     .card-v .cv-name.empty{color:var(--muted);font-weight:500;font-style:italic}
@@ -71,7 +85,7 @@
     .card-v .cv-acts .btn.danger{flex:0 0 auto;padding:8px 10px}
     .card-v .cv-acts .btn.move{flex:0 0 auto;padding:8px 12px}
 
-    /* ── Modal: 建立／重命名／移動 ── */
+    /* ── Modal ── */
     .modal-bg{position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);display:grid;place-items:center;padding:20px;animation:fadeIn .2s ease}
     @keyframes fadeIn{from{opacity:0}to{opacity:1}}
     .modal-box{width:100%;max-width:420px;border:1px solid var(--line);border-radius:14px;background:#0a0a0c;padding:24px;box-shadow:0 30px 80px rgba(0,0,0,.7)}
@@ -96,7 +110,7 @@
     <div class="hero">
       <span class="no">02 / PROMPT VAULT</span>
       <h1>Prompt 整理</h1>
-      <p>用<b style="color:#fff">資料夾分類</b>、<b style="color:#fff">多張參考圖</b>、<b style="color:#fff">點縮圖看大圖</b>。所有人共用、雲端永久。</p>
+      <p>把提示詞用<b style="color:#fff">資料夾</b>分類好：點資料夾進去看裡面的內容、可以多張圖、點圖看大圖。</p>
     </div>
 
     <div class="tabs" id="tabs">
@@ -104,13 +118,38 @@
       <button class="tab" data-tab="nb">Nano Banana<span class="c" id="c-nb">0</span></button>
     </div>
 
-    <!-- 資料夾橫向篩選 -->
-    <div class="folder-bar" id="folder-bar">
-      <span class="folder-bar-label">資料夾</span>
-      <!-- 動態插入：全部 / 未分類 / ...user folders / + 新增 -->
-    </div>
+    <!-- Composer -->
+    <section class="panel">
+      <label>名稱 / 標題</label>
+      <input id="f-title" type="text" placeholder="例如：賽博龐克下雨夜街景" />
 
-    <!-- 排序 + 大小 -->
+      <label class="block">所屬資料夾</label>
+      <select id="f-folder">
+        <option value="">未分類</option>
+      </select>
+
+      <label class="block">提示詞</label>
+      <textarea id="f-text" rows="5" placeholder="把提示詞貼在這裡…"></textarea>
+
+      <label class="block">標籤（用逗號分隔，可留空）</label>
+      <input id="f-tags" type="text" placeholder="例如：cyberpunk, night, neon" />
+
+      <label class="block">圖片（可上傳<b style="color:#fff">多張</b>，第一張會當主圖）</label>
+      <div class="imgs-strip" id="imgs-strip">
+        <div class="add-cell" id="add-img">📷<br>新增圖片</div>
+      </div>
+
+      <div class="actions">
+        <span class="editing-flag" id="flag"></span>
+        <button id="cancel" class="btn ghost sm" style="display:none">取消編輯</button>
+        <button id="save" class="btn primary">＋ 儲存提示詞</button>
+      </div>
+    </section>
+
+    <!-- 麵包屑（從這裡開始是「下方」的內容）-->
+    <div class="crumb" id="crumb"></div>
+
+    <!-- 工具列：排序 / 搜尋 / 大小 -->
     <div class="toolbar-2">
       <select id="sort" class="sort-sel">
         <option value="new">最新優先</option>
@@ -127,36 +166,6 @@
       <span id="count" class="stat" style="font-family:var(--fm);font-size:11.5px;color:var(--muted)"></span>
     </div>
 
-    <!-- Composer -->
-    <section class="panel">
-      <label>名稱 / 標題</label>
-      <input id="f-title" type="text" placeholder="例如：賽博龐克下雨夜街景" />
-
-      <label class="block">所屬資料夾</label>
-      <select id="f-folder">
-        <option value="">未分類</option>
-        <!-- 動態插入 -->
-      </select>
-
-      <label class="block">提示詞</label>
-      <textarea id="f-text" rows="5" placeholder="把提示詞貼在這裡…"></textarea>
-
-      <label class="block">標籤（用逗號分隔，可留空）</label>
-      <input id="f-tags" type="text" placeholder="例如：cyberpunk, night, neon" />
-
-      <label class="block">圖片（可上傳<b style="color:#fff">多張</b>，建議第一張當主圖）</label>
-      <div class="imgs-strip" id="imgs-strip">
-        <!-- 動態插入縮圖格 + 新增格 -->
-        <div class="add-cell" id="add-img">📷<br>新增圖片</div>
-      </div>
-
-      <div class="actions">
-        <span class="editing-flag" id="flag"></span>
-        <button id="cancel" class="btn ghost sm" style="display:none">取消編輯</button>
-        <button id="save" class="btn primary">＋ 儲存提示詞</button>
-      </div>
-    </section>
-
     <div class="grid" id="list"></div>
   </main>
 
@@ -168,11 +177,14 @@
     var tab='mj';
     var KIND={mj:'prompt-mj',nb:'prompt-nb'};
     var cache={mj:[],nb:[]};
-    var folders=[];                  // [{id, label}]
+    var folders=[];          // [{id, label}]
     var editingId=null;
-    var currentImgs=[];              // base64 array for composer
-    var activeFolder='__all__';      // __all__ / __none__ / folder id
+    var currentImgs=[];      // base64 array for composer
+    var view='root';         // 'root' or 'folder'
+    var viewFolderId=null;   // folder id or '__none__' (未分類) when view==='folder'
     var sortKey='new';
+
+    var FOLDER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/><path d="M3 9.5h18"/></svg>';
 
     function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
     function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('show');},1800);}
@@ -201,8 +213,8 @@
         cache.nb = nb.items||[];
         $('#c-mj').textContent = cache.mj.length;
         $('#c-nb').textContent = cache.nb.length;
-        renderFolderBar();
         renderFolderSelect();
+        renderCrumb();
         render();
       }catch(e){
         $('#list').innerHTML='<div class="h-empty" style="grid-column:1/-1">載入失敗：'+esc(e.message)+'</div>';
@@ -215,35 +227,6 @@
       return [];
     }
 
-    function renderFolderBar(){
-      var arr = cache[tab];
-      var counts = { __all__: arr.length, __none__: 0 };
-      folders.forEach(function(f){ counts[f.id]=0; });
-      arr.forEach(function(it){
-        var fid = (it.data&&it.data.folder) || '__none__';
-        counts[fid] = (counts[fid]||0) + 1;
-      });
-      var html = '<span class="folder-bar-label">資料夾</span>';
-      var mkChip = function(id, label, count, withRm){
-        var cls = 'folder-chip'+(activeFolder===id?' on':'');
-        var rm = withRm ? '<span class="frm" data-rmfolder="'+id+'" title="重新命名">✎</span><span class="frm" data-delfolder="'+id+'" title="刪除">✕</span>' : '';
-        return '<button class="'+cls+'" data-folder="'+id+'">'+esc(label)+'<span class="cnt">'+(count||0)+'</span>'+rm+'</button>';
-      };
-      html += mkChip('__all__','全部', counts.__all__, false);
-      html += mkChip('__none__','未分類', counts.__none__, false);
-      folders.forEach(function(f){ html += mkChip(f.id, f.label, counts[f.id]||0, true); });
-      html += '<button class="folder-add" id="folder-add">＋ 新增資料夾</button>';
-      $('#folder-bar').innerHTML = html;
-      $('#folder-bar').querySelectorAll('.folder-chip').forEach(function(c){
-        c.addEventListener('click',function(e){
-          if(e.target.dataset.rmfolder){ e.stopPropagation(); renameFolder(e.target.dataset.rmfolder); return; }
-          if(e.target.dataset.delfolder){ e.stopPropagation(); deleteFolder(e.target.dataset.delfolder); return; }
-          activeFolder = c.dataset.folder; renderFolderBar(); render();
-        });
-      });
-      $('#folder-add').addEventListener('click', createFolder);
-    }
-
     function renderFolderSelect(){
       var sel = $('#f-folder');
       sel.innerHTML = '<option value="">未分類</option>' +
@@ -251,39 +234,117 @@
     }
 
     function folderLabel(id){
-      if(!id) return '';
+      if(!id) return '未分類';
+      if(id==='__none__') return '未分類';
       var f = folders.find(function(x){return x.id===id;});
-      return f ? f.label : '';
+      return f ? f.label : '未分類';
+    }
+
+    function renderCrumb(){
+      var box = $('#crumb');
+      if (view==='root'){
+        box.innerHTML = '<a class="now">📁 全部資料夾</a>' +
+          '<span class="right" id="crumb-right"><span style="font-family:var(--fm);font-size:11px;color:var(--muted);letter-spacing:.06em">點下方資料夾進入查看</span></span>';
+      } else {
+        var lbl = folderLabel(viewFolderId);
+        box.innerHTML = '<a data-act="root">📁 全部資料夾</a><span class="sep">/</span><a class="now">'+esc(lbl)+'</a>';
+      }
+      var b=box.querySelector('[data-act=root]');
+      if(b) b.addEventListener('click', goRoot);
+    }
+
+    function goRoot(){
+      view='root'; viewFolderId=null;
+      renderCrumb(); render();
+      window.scrollTo({top:document.querySelector('.crumb').offsetTop-80,behavior:'smooth'});
+    }
+    function enterFolder(id){
+      view='folder'; viewFolderId=id;
+      renderCrumb(); render();
+      window.scrollTo({top:document.querySelector('.crumb').offsetTop-80,behavior:'smooth'});
     }
 
     function sortFn(a,b){
       var da = a.data||{}, db = b.data||{};
       if (sortKey==='new') return new Date(b.updated_at||b.created_at) - new Date(a.updated_at||a.created_at);
       if (sortKey==='old') return new Date(a.updated_at||a.created_at) - new Date(b.updated_at||b.created_at);
-      var ta = (da.title||'').toLowerCase(), tb = (db.title||'').toLowerCase();
+      var ta = (da.title||da.label||'').toLowerCase(), tb = (db.title||db.label||'').toLowerCase();
       if (sortKey==='az') return ta.localeCompare(tb);
       if (sortKey==='za') return tb.localeCompare(ta);
       return 0;
     }
+    function sortFolders(arr){
+      // 一律按名稱排（不管 sortKey 是什麼，資料夾以名稱排比較直覺）
+      return arr.slice().sort(function(a,b){ return (a.label||'').localeCompare(b.label||''); });
+    }
 
     function render(){
       var q=$('#search').value.trim().toLowerCase();
+      var box=$('#list');
+
+      if (view==='root'){
+        // 根目錄：列出所有資料夾（含「未分類」）+ 「＋ 新增資料夾」
+        var prompts = cache[tab]||[];
+        // 每個資料夾的計數
+        var counts = { '__none__': 0 };
+        folders.forEach(function(f){ counts[f.id]=0; });
+        prompts.forEach(function(it){
+          var fid = (it.data&&it.data.folder) || '__none__';
+          counts[fid] = (counts[fid]||0) + 1;
+        });
+
+        // 用搜尋過濾資料夾名稱
+        var list = folders.filter(function(f){ return !q || f.label.toLowerCase().indexOf(q)>=0; });
+        list = sortFolders(list);
+
+        var html = '';
+        // 「未分類」總是第一個（如果不在搜尋中）
+        if (!q || '未分類'.indexOf(q)>=0 || 'uncategorized'.indexOf(q)>=0) {
+          html += folderCardHtml('__none__', '未分類', counts['__none__']||0, true);
+        }
+        list.forEach(function(f){
+          html += folderCardHtml(f.id, f.label, counts[f.id]||0, false);
+        });
+        // 新增資料夾
+        html += '<button class="card-add" id="add-folder"><div><div class="ico">＋</div><div class="lbl">新增資料夾</div></div></button>';
+
+        box.innerHTML = html;
+        $('#count').textContent = list.length + 1 + ' 個資料夾';
+
+        // 綁定
+        box.querySelectorAll('.card-folder').forEach(function(c){
+          c.addEventListener('click',function(e){
+            if (e.target.closest('.fd-acts')) return; // 點按鈕不要進入
+            enterFolder(c.dataset.fid);
+          });
+        });
+        box.querySelectorAll('[data-act=rename]').forEach(function(b){
+          b.addEventListener('click',function(e){ e.stopPropagation(); renameFolder(b.dataset.id); });
+        });
+        box.querySelectorAll('[data-act=remove]').forEach(function(b){
+          b.addEventListener('click',function(e){ e.stopPropagation(); deleteFolder(b.dataset.id); });
+        });
+        var addBtn = $('#add-folder');
+        if (addBtn) addBtn.addEventListener('click', createFolder);
+        return;
+      }
+
+      // 在某個資料夾裡：顯示該資料夾的 prompts
       var arr=(cache[tab]||[]).slice();
-      // 資料夾過濾
-      if (activeFolder==='__none__') arr = arr.filter(function(it){ return !(it.data&&it.data.folder); });
-      else if (activeFolder!=='__all__') arr = arr.filter(function(it){ return (it.data&&it.data.folder)===activeFolder; });
-      // 搜尋
+      if (viewFolderId==='__none__') arr = arr.filter(function(it){ return !(it.data&&it.data.folder); });
+      else arr = arr.filter(function(it){ return (it.data&&it.data.folder)===viewFolderId; });
       var items = arr.filter(function(it){
         var d=it.data||{};
         if(!q) return true;
         return ((d.title||'')+' '+(d.text||'')+' '+((d.tags||[]).join(' '))).toLowerCase().indexOf(q)>=0;
       });
-      // 排序
       items.sort(sortFn);
+      $('#count').textContent = items.length + ' 筆';
 
-      $('#count').textContent=items.length+' 筆';
-      var box=$('#list');
-      if(!items.length){ box.innerHTML='<div class="h-empty" style="grid-column:1/-1">'+(q?'找不到符合的提示詞。':'這個分類還沒有提示詞。')+'</div>'; return; }
+      if(!items.length){
+        box.innerHTML='<div class="h-empty" style="grid-column:1/-1">'+(q?'找不到符合的提示詞。':'這個資料夾還沒有內容，從上面新增一筆吧。')+'</div>';
+        return;
+      }
       box.innerHTML=items.map(function(it){
         var d=it.data||{};
         var imgs=getImages(d);
@@ -293,7 +354,6 @@
         var thumb = imgs.length
           ? '<div class="cv-thumb" data-id="'+it.id+'" style="background-image:url(\''+esc(imgs[0])+'\')" title="點擊看大圖">'+
               (imgs.length>1 ? '<div class="cv-cnt">▦ '+imgs.length+'</div>' : '')+
-              (d.folder ? '<div class="cv-fld">'+esc(folderLabel(d.folder))+'</div>' : '')+
             '</div>'
           : '<div class="cv-thumb empty">無圖</div>';
         return '<div class="card-v" data-id="'+it.id+'">'+thumb+
@@ -312,6 +372,21 @@
       }).join('');
     }
 
+    function folderCardHtml(id, label, count, isUncat){
+      var acts = '';
+      if (!isUncat){
+        acts = '<div class="fd-acts">'+
+          '<button class="btn sm" data-act="rename" data-id="'+id+'">✎ 改名</button>'+
+          '<button class="btn sm ghost danger" data-act="remove" data-id="'+id+'" title="刪除">✕</button>'+
+        '</div>';
+      }
+      return '<div class="card-folder'+(isUncat?' uncat':'')+'" data-fid="'+id+'" title="點擊進入">'+
+        '<div class="fd-icon">'+FOLDER_SVG+'</div>'+
+        '<div class="fd-body"><span class="fd-name">'+esc(label)+'</span><span class="fd-count">'+count+' 筆 ›</span></div>'+
+        acts+
+      '</div>';
+    }
+
     // ── Composer 多張圖 ──
     function renderImgsStrip(){
       var strip = $('#imgs-strip');
@@ -322,7 +397,6 @@
       strip.innerHTML = html;
       strip.querySelectorAll('img').forEach(function(im){
         im.addEventListener('click', function(){ JSTLightbox.open(currentImgs, parseInt(im.dataset.idx,10)); });
-        im.style.cursor='zoom-in';
       });
       strip.querySelectorAll('.x').forEach(function(b){
         b.addEventListener('click', function(e){
@@ -346,7 +420,7 @@
 
     function resetComposer(){
       editingId=null; $('#f-title').value=''; $('#f-text').value=''; $('#f-tags').value='';
-      $('#f-folder').value='';
+      $('#f-folder').value = (view==='folder' && viewFolderId!=='__none__') ? viewFolderId : '';
       currentImgs = [];
       renderImgsStrip();
       $('#save').textContent='＋ 儲存提示詞';
@@ -360,13 +434,7 @@
       if(!text){ toast('請貼提示詞'); $('#f-text').focus(); return; }
       var tags=$('#f-tags').value.split(',').map(function(s){return s.trim();}).filter(Boolean);
       var folder=$('#f-folder').value || '';
-      var data={
-        title:title,
-        text:text,
-        tags:tags,
-        images: currentImgs.slice(),
-        folder: folder
-      };
+      var data={ title:title, text:text, tags:tags, images: currentImgs.slice(), folder: folder };
       var btn=$('#save'); btn.disabled=true;
       try{
         if(editingId){
@@ -418,12 +486,10 @@
     }
     async function deleteFolder(id){
       var f = folders.find(function(x){return x.id===id;}); if(!f) return;
-      // 看有幾筆 prompt 在裡面
       var n = (cache.mj.concat(cache.nb)).filter(function(it){ return (it.data&&it.data.folder)===id; }).length;
       var msg = '刪除資料夾「'+f.label+'」？\n' + (n? '裡面的 '+n+' 筆提示詞會變成「未分類」（不會被刪掉）。' : '裡面是空的。');
       if (!confirm(msg)) return;
       try{
-        // 先把指到這個資料夾的 prompt 改回 未分類
         if (n) {
           var promises = (cache.mj.concat(cache.nb))
             .filter(function(it){ return (it.data&&it.data.folder)===id; })
@@ -435,8 +501,7 @@
         }
         await api('/api/items/'+id,{method:'DELETE'});
         toast('✓ 已刪除');
-        if (activeFolder===id) activeFolder='__all__';
-        await reloadAll();
+        if (viewFolderId===id) goRoot(); else await reloadAll();
       }catch(e){ toast('❌ '+e.message); }
     }
     async function moveItem(id){
@@ -493,14 +558,13 @@
       var b=e.target.closest('.tab'); if(!b) return;
       tab=b.dataset.tab;
       document.querySelectorAll('.tab').forEach(function(x){x.classList.toggle('on',x===b);});
-      resetComposer(); renderFolderBar(); render();
+      goRoot(); resetComposer();
     });
     $('#save').addEventListener('click',saveItem);
     $('#cancel').addEventListener('click',resetComposer);
     $('#search').addEventListener('input',render);
     $('#sort').addEventListener('change',function(e){ sortKey=e.target.value; render(); });
 
-    // 縮圖大小：記住偏好
     (function(){
       var sizeInp=$('#size');
       var saved=localStorage.getItem('jst-pv-size');
@@ -512,7 +576,7 @@
       });
     })();
 
-    // 列表點擊
+    // 列表點擊（資料夾內的 prompt 卡片）
     $('#list').addEventListener('click',async function(e){
       var thumb = e.target.closest('.cv-thumb');
       if (thumb && !thumb.classList.contains('empty')){
@@ -548,7 +612,6 @@
       }
     });
 
-    // 初始 composer 圖片區
     renderImgsStrip();
   })();
   </script>
