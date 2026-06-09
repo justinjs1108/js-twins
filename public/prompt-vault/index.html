@@ -27,16 +27,21 @@
     .imgs-strip .add-cell{width:96px;height:72px;border-radius:8px;border:1.5px dashed var(--line);display:grid;place-items:center;cursor:pointer;color:var(--muted);font-family:var(--fm);font-size:11px;letter-spacing:.06em;line-height:1.5;text-align:center;transition:all .18s}
     .imgs-strip .add-cell:hover{color:#fff;border-color:rgba(255,255,255,.4)}
 
-    /* ── 麵包屑 ── */
-    .crumb{display:flex;gap:10px;align-items:center;margin:24px 0 14px;font-family:var(--fm);font-size:12px;letter-spacing:.1em;color:var(--muted);flex-wrap:wrap}
-    .crumb a{cursor:pointer;color:var(--text-2);text-decoration:none;padding:6px 10px;border-radius:7px;transition:all .18s}
-    .crumb a:hover{color:#fff;background:rgba(255,255,255,.05)}
-    .crumb a.now{color:#fff;font-weight:500}
-    .crumb .sep{color:var(--muted);opacity:.55}
-    .crumb .right{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    /* ── 麵包屑 / 大標 ── */
+    .crumb-block{margin:32px 0 22px}
+    .crumb-root .title{font-family:var(--fd);font-weight:900;font-size:clamp(28px,3.4vw,42px);letter-spacing:-.02em;color:#fff;line-height:1.1;display:flex;align-items:center;gap:14px}
+    .crumb-root .title .ico{font-size:.8em;opacity:.85}
+    .crumb-root .sub{font-family:var(--fm);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-top:10px;padding-left:2px}
+    .crumb-back{display:inline-flex;align-items:center;gap:12px;font-family:var(--fm);font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text);background:linear-gradient(180deg,#1c1c20,#060607);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:11px 22px 11px 16px;cursor:pointer;transition:all .25s var(--ease);text-decoration:none;box-shadow:inset 0 1px 1px rgba(255,255,255,.12),0 4px 14px rgba(0,0,0,.5)}
+    .crumb-back:hover{transform:translateX(-2px);border-color:rgba(255,255,255,.35);box-shadow:inset 0 1px 1px rgba(255,255,255,.2),0 8px 22px rgba(0,0,0,.6),0 0 18px rgba(255,255,255,.08)}
+    .crumb-back .arr{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;border:1px solid rgba(255,255,255,.25);font-size:13px;color:#fff;background:rgba(255,255,255,.04)}
+    .crumb-folder{margin-top:22px;display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;padding-bottom:18px;border-bottom:1px solid var(--line)}
+    .crumb-folder .name{font-family:var(--fd);font-weight:900;font-size:clamp(28px,3.4vw,40px);letter-spacing:-.02em;color:#fff;line-height:1.1;display:flex;align-items:center;gap:12px}
+    .crumb-folder .cnt{font-family:var(--fm);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
 
-    /* ── 工具列（排序 / 搜尋 / 大小）在 composer 下方 ── */
+    /* ── 工具列：排序 / 大小 ── */
     .toolbar-2{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:0 0 16px}
+    .toolbar-2 .sp{flex:1}
     .sort-sel{font-family:var(--fm);font-size:12px;letter-spacing:.06em;background:rgba(0,0,0,.4);color:var(--text);border:1px solid var(--line);border-radius:999px;padding:9px 14px;cursor:pointer}
     .sort-sel:focus{outline:none;border-color:rgba(255,255,255,.4)}
     .size-ctrl{display:flex;align-items:center;gap:10px;font-family:var(--fm);font-size:10.5px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
@@ -49,23 +54,36 @@
     /* ── 網格 ── */
     .grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(var(--card-min,240px),1fr));transition:grid-template-columns .25s var(--ease)}
 
-    /* ── 資料夾卡片 ── */
+    /* ── 資料夾卡（會顯示縮圖 + 左右切換 + 名稱旁編輯）── */
     .card-folder{border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.01));overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:border-color .25s,transform .25s,box-shadow .25s;position:relative}
     .card-folder:hover{border-color:rgba(255,255,255,.4);transform:translateY(-3px);box-shadow:0 14px 32px rgba(0,0,0,.5)}
-    .card-folder .fd-icon{width:100%;aspect-ratio:4/3;display:grid;place-items:center;background:repeating-linear-gradient(45deg,rgba(255,255,255,.018) 0 12px,rgba(255,255,255,.038) 12px 24px);position:relative}
-    .card-folder .fd-icon svg{width:46%;height:46%;color:#fff;opacity:.88;filter:drop-shadow(0 6px 18px rgba(0,0,0,.6))}
-    .card-folder.uncat .fd-icon svg{opacity:.6}
-    .card-folder .fd-body{padding:14px 16px 12px;display:flex;align-items:center;gap:10px}
+    .card-folder .fd-thumb{width:100%;aspect-ratio:4/3;background:rgba(0,0,0,.55) center/cover no-repeat;position:relative;display:block}
+    .card-folder .fd-thumb.empty{display:grid;place-items:center;background:repeating-linear-gradient(45deg,rgba(255,255,255,.018) 0 12px,rgba(255,255,255,.038) 12px 24px)}
+    .card-folder .fd-thumb.empty svg{width:46%;height:46%;color:#fff;opacity:.78}
+    .card-folder .fd-badge{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.78);color:#fff;font-family:var(--fm);font-size:10.5px;letter-spacing:.1em;padding:5px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.2);display:flex;align-items:center;gap:6px}
+    .card-folder .fd-badge svg{width:13px;height:13px;color:#fff}
+    .card-folder .fd-cnt{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.78);color:#fff;font-family:var(--fm);font-size:10.5px;letter-spacing:.06em;padding:5px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.2)}
+    .card-folder .fd-arr{position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:18px;cursor:pointer;display:none;align-items:center;justify-content:center;transition:all .18s;line-height:1;font-family:var(--fm);user-select:none}
+    .card-folder:hover .fd-arr.show{display:flex}
+    .card-folder .fd-arr:hover{background:#fff;color:#000}
+    .card-folder .fd-prev{left:10px}
+    .card-folder .fd-next{right:10px}
+    .card-folder .fd-body{padding:14px 16px 14px;display:flex;align-items:center;gap:10px}
+    .card-folder .fd-name-wrap{flex:1;min-width:0;display:flex;align-items:center;gap:8px}
     .card-folder .fd-name{font-family:var(--fd);font-weight:800;font-size:16px;letter-spacing:-.005em;color:var(--text);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .card-folder .fd-count{font-family:var(--fm);font-size:11px;color:var(--muted);letter-spacing:.06em}
-    .card-folder .fd-acts{padding:0 12px 12px;display:flex;gap:6px}
-    .card-folder .fd-acts .btn{flex:1;padding:7px 8px;font-size:10.5px;letter-spacing:.06em}
-    .card-folder .fd-acts .btn.danger{flex:0 0 auto;padding:7px 10px}
+    .card-folder .fd-name-input{font-family:var(--fd);font-weight:800;font-size:16px;letter-spacing:-.005em;color:#fff;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.35);border-radius:6px;padding:4px 8px;flex:1;min-width:0;outline:none}
+    .card-folder .fd-name-input:focus{border-color:#fff}
+    .card-folder .fd-edit{flex:0 0 auto;width:28px;height:28px;display:grid;place-items:center;border:0;background:rgba(255,255,255,.05);color:var(--muted);border-radius:50%;cursor:pointer;font-size:13px;transition:all .18s}
+    .card-folder .fd-edit:hover{background:rgba(255,255,255,.14);color:#fff}
+    .card-folder .fd-del{flex:0 0 auto;width:28px;height:28px;display:grid;place-items:center;border:0;background:rgba(255,255,255,.05);color:var(--muted);border-radius:50%;cursor:pointer;font-size:13px;transition:all .18s}
+    .card-folder .fd-del:hover{background:rgba(255,107,107,.18);color:#ff6b6b}
+    .card-folder .fd-go{font-family:var(--fm);font-size:11px;color:var(--muted);letter-spacing:.06em;flex:0 0 auto}
+
     /* 「＋ 新增資料夾」卡 */
     .card-add{border:1.5px dashed var(--line);border-radius:14px;background:transparent;cursor:pointer;display:grid;place-items:center;min-height:240px;transition:all .25s}
     .card-add:hover{border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.02)}
-    .card-add .ico{font-family:var(--fd);font-weight:300;font-size:42px;color:var(--muted);line-height:1}
-    .card-add .lbl{font-family:var(--fm);font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+    .card-add .ico{font-family:var(--fd);font-weight:300;font-size:42px;color:var(--muted);line-height:1;text-align:center}
+    .card-add .lbl{font-family:var(--fm);font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:8px;text-align:center}
     .card-add:hover .ico,.card-add:hover .lbl{color:#fff}
 
     /* ── 提示詞卡片 ── */
@@ -146,10 +164,10 @@
       </div>
     </section>
 
-    <!-- 麵包屑（從這裡開始是「下方」的內容）-->
-    <div class="crumb" id="crumb"></div>
+    <!-- 大標 / 返回 -->
+    <div class="crumb-block" id="crumb"></div>
 
-    <!-- 工具列：排序 / 搜尋 / 大小 -->
+    <!-- 工具列：排序 / 大小（無搜尋） -->
     <div class="toolbar-2">
       <select id="sort" class="sort-sel">
         <option value="new">最新優先</option>
@@ -157,7 +175,7 @@
         <option value="az">名稱 A→Z</option>
         <option value="za">名稱 Z→A</option>
       </select>
-      <input id="search" class="search" style="flex:1;background:rgba(0,0,0,.35);color:var(--text);border:1px solid var(--line);border-radius:999px;padding:11px 18px;font-size:14px;font-family:inherit;min-width:200px" placeholder="🔍 搜尋名稱、標籤、提示詞…" />
+      <div class="sp"></div>
       <div class="size-ctrl" title="調整縮圖大小">
         <span class="ic">▫</span>
         <input id="size" type="range" min="160" max="420" step="10" value="240" />
@@ -181,10 +199,12 @@
     var editingId=null;
     var currentImgs=[];      // base64 array for composer
     var view='root';         // 'root' or 'folder'
-    var viewFolderId=null;   // folder id or '__none__' (未分類) when view==='folder'
+    var viewFolderId=null;   // folder id or '__none__' (未分類)
     var sortKey='new';
+    var folderPrev={};       // {folderId: previewIndex}
 
-    var FOLDER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/><path d="M3 9.5h18"/></svg>';
+    var FOLDER_SVG_SMALL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>';
+    var FOLDER_SVG_BIG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/><path d="M3 9.5h18"/></svg>';
 
     function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
     function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('show');},1800);}
@@ -227,6 +247,21 @@
       return [];
     }
 
+    function getFolderPreviews(folderId){
+      // 拿這個資料夾裡每一筆 prompt 的第一張圖
+      var arr = cache[tab]||[];
+      var ids = arr.filter(function(it){
+        var fid = (it.data&&it.data.folder) || '__none__';
+        return fid === folderId;
+      });
+      var imgs = [];
+      ids.forEach(function(it){
+        var ims = getImages(it.data||{});
+        if (ims.length) imgs.push(ims[0]);
+      });
+      return imgs;
+    }
+
     function renderFolderSelect(){
       var sel = $('#f-folder');
       sel.innerHTML = '<option value="">未分類</option>' +
@@ -234,8 +269,7 @@
     }
 
     function folderLabel(id){
-      if(!id) return '未分類';
-      if(id==='__none__') return '未分類';
+      if(!id || id==='__none__') return '未分類';
       var f = folders.find(function(x){return x.id===id;});
       return f ? f.label : '未分類';
     }
@@ -243,106 +277,129 @@
     function renderCrumb(){
       var box = $('#crumb');
       if (view==='root'){
-        box.innerHTML = '<a class="now">📁 全部資料夾</a>' +
-          '<span class="right" id="crumb-right"><span style="font-family:var(--fm);font-size:11px;color:var(--muted);letter-spacing:.06em">點下方資料夾進入查看</span></span>';
+        box.innerHTML =
+          '<div class="crumb-root">'+
+            '<div class="title"><span class="ico">'+FOLDER_SVG_BIG+'</span><span>全部資料夾</span></div>'+
+            '<div class="sub">點下方資料夾進入查看</div>'+
+          '</div>';
       } else {
         var lbl = folderLabel(viewFolderId);
-        box.innerHTML = '<a data-act="root">📁 全部資料夾</a><span class="sep">/</span><a class="now">'+esc(lbl)+'</a>';
+        var arr = cache[tab]||[];
+        var n = arr.filter(function(it){
+          var fid = (it.data&&it.data.folder)||'__none__';
+          return fid===viewFolderId;
+        }).length;
+        box.innerHTML =
+          '<button class="crumb-back" id="crumb-back" type="button"><span class="arr">←</span>回到全部資料夾</button>'+
+          '<div class="crumb-folder">'+
+            '<div class="name">'+FOLDER_SVG_BIG+'<span>'+esc(lbl)+'</span></div>'+
+            '<div class="cnt">'+n+' 筆內容</div>'+
+          '</div>';
+        var bk = $('#crumb-back'); if(bk) bk.addEventListener('click', goRoot);
       }
-      var b=box.querySelector('[data-act=root]');
-      if(b) b.addEventListener('click', goRoot);
     }
 
     function goRoot(){
       view='root'; viewFolderId=null;
       renderCrumb(); render();
-      window.scrollTo({top:document.querySelector('.crumb').offsetTop-80,behavior:'smooth'});
+      window.scrollTo({top:$('#crumb').offsetTop-80,behavior:'smooth'});
     }
     function enterFolder(id){
       view='folder'; viewFolderId=id;
       renderCrumb(); render();
-      window.scrollTo({top:document.querySelector('.crumb').offsetTop-80,behavior:'smooth'});
+      window.scrollTo({top:$('#crumb').offsetTop-80,behavior:'smooth'});
     }
 
     function sortFn(a,b){
       var da = a.data||{}, db = b.data||{};
       if (sortKey==='new') return new Date(b.updated_at||b.created_at) - new Date(a.updated_at||a.created_at);
       if (sortKey==='old') return new Date(a.updated_at||a.created_at) - new Date(b.updated_at||b.created_at);
-      var ta = (da.title||da.label||'').toLowerCase(), tb = (db.title||db.label||'').toLowerCase();
+      var ta = (da.title||'').toLowerCase(), tb = (db.title||'').toLowerCase();
       if (sortKey==='az') return ta.localeCompare(tb);
       if (sortKey==='za') return tb.localeCompare(ta);
       return 0;
     }
-    function sortFolders(arr){
-      // 一律按名稱排（不管 sortKey 是什麼，資料夾以名稱排比較直覺）
-      return arr.slice().sort(function(a,b){ return (a.label||'').localeCompare(b.label||''); });
-    }
 
     function render(){
-      var q=$('#search').value.trim().toLowerCase();
       var box=$('#list');
 
       if (view==='root'){
-        // 根目錄：列出所有資料夾（含「未分類」）+ 「＋ 新增資料夾」
-        var prompts = cache[tab]||[];
-        // 每個資料夾的計數
+        // 列出所有資料夾：user folders 在前 → 未分類 → ＋ 新增
         var counts = { '__none__': 0 };
         folders.forEach(function(f){ counts[f.id]=0; });
-        prompts.forEach(function(it){
+        (cache[tab]||[]).forEach(function(it){
           var fid = (it.data&&it.data.folder) || '__none__';
           counts[fid] = (counts[fid]||0) + 1;
         });
 
-        // 用搜尋過濾資料夾名稱
-        var list = folders.filter(function(f){ return !q || f.label.toLowerCase().indexOf(q)>=0; });
-        list = sortFolders(list);
+        var userList = folders.slice().sort(function(a,b){ return (a.label||'').localeCompare(b.label||''); });
 
         var html = '';
-        // 「未分類」總是第一個（如果不在搜尋中）
-        if (!q || '未分類'.indexOf(q)>=0 || 'uncategorized'.indexOf(q)>=0) {
-          html += folderCardHtml('__none__', '未分類', counts['__none__']||0, true);
-        }
-        list.forEach(function(f){
+        userList.forEach(function(f){
           html += folderCardHtml(f.id, f.label, counts[f.id]||0, false);
         });
-        // 新增資料夾
+        // 未分類 永遠最後（在新增之前）
+        html += folderCardHtml('__none__', '未分類', counts['__none__']||0, true);
+        // 新增
         html += '<button class="card-add" id="add-folder"><div><div class="ico">＋</div><div class="lbl">新增資料夾</div></div></button>';
 
         box.innerHTML = html;
-        $('#count').textContent = list.length + 1 + ' 個資料夾';
+        $('#count').textContent = (userList.length+1) + ' 個資料夾';
 
-        // 綁定
-        box.querySelectorAll('.card-folder').forEach(function(c){
-          c.addEventListener('click',function(e){
-            if (e.target.closest('.fd-acts')) return; // 點按鈕不要進入
-            enterFolder(c.dataset.fid);
+        // 綁定每張卡的事件
+        box.querySelectorAll('.card-folder').forEach(function(card){
+          var fid = card.dataset.fid;
+          // 點卡進入（避開內部互動元件）
+          card.addEventListener('click',function(e){
+            if (e.target.closest('.fd-arr,.fd-edit,.fd-del,.fd-name-input')) return;
+            enterFolder(fid);
           });
-        });
-        box.querySelectorAll('[data-act=rename]').forEach(function(b){
-          b.addEventListener('click',function(e){ e.stopPropagation(); renameFolder(b.dataset.id); });
-        });
-        box.querySelectorAll('[data-act=remove]').forEach(function(b){
-          b.addEventListener('click',function(e){ e.stopPropagation(); deleteFolder(b.dataset.id); });
+          // 左右切換縮圖
+          var prevs = getFolderPreviews(fid);
+          var prevBtn = card.querySelector('.fd-prev');
+          var nextBtn = card.querySelector('.fd-next');
+          if (prevs.length > 1) {
+            if (prevBtn) prevBtn.classList.add('show');
+            if (nextBtn) nextBtn.classList.add('show');
+            if (prevBtn) prevBtn.addEventListener('click',function(e){
+              e.stopPropagation();
+              folderPrev[fid] = ((folderPrev[fid]||0) - 1 + prevs.length) % prevs.length;
+              card.querySelector('.fd-thumb').style.backgroundImage = "url('"+prevs[folderPrev[fid]]+"')";
+            });
+            if (nextBtn) nextBtn.addEventListener('click',function(e){
+              e.stopPropagation();
+              folderPrev[fid] = ((folderPrev[fid]||0) + 1) % prevs.length;
+              card.querySelector('.fd-thumb').style.backgroundImage = "url('"+prevs[folderPrev[fid]]+"')";
+            });
+          }
+          // 改名
+          var editBtn = card.querySelector('.fd-edit');
+          if (editBtn) editBtn.addEventListener('click', function(e){
+            e.stopPropagation();
+            startInlineRename(card, fid);
+          });
+          // 刪除
+          var delBtn = card.querySelector('.fd-del');
+          if (delBtn) delBtn.addEventListener('click', function(e){
+            e.stopPropagation();
+            deleteFolder(fid);
+          });
         });
         var addBtn = $('#add-folder');
         if (addBtn) addBtn.addEventListener('click', createFolder);
         return;
       }
 
-      // 在某個資料夾裡：顯示該資料夾的 prompts
+      // 資料夾內：顯示該資料夾的 prompts
       var arr=(cache[tab]||[]).slice();
       if (viewFolderId==='__none__') arr = arr.filter(function(it){ return !(it.data&&it.data.folder); });
       else arr = arr.filter(function(it){ return (it.data&&it.data.folder)===viewFolderId; });
-      var items = arr.filter(function(it){
-        var d=it.data||{};
-        if(!q) return true;
-        return ((d.title||'')+' '+(d.text||'')+' '+((d.tags||[]).join(' '))).toLowerCase().indexOf(q)>=0;
-      });
+      var items = arr;
       items.sort(sortFn);
       $('#count').textContent = items.length + ' 筆';
 
       if(!items.length){
-        box.innerHTML='<div class="h-empty" style="grid-column:1/-1">'+(q?'找不到符合的提示詞。':'這個資料夾還沒有內容，從上面新增一筆吧。')+'</div>';
+        box.innerHTML='<div class="h-empty" style="grid-column:1/-1">這個資料夾還沒有內容，從上面新增一筆吧。</div>';
         return;
       }
       box.innerHTML=items.map(function(it){
@@ -373,18 +430,67 @@
     }
 
     function folderCardHtml(id, label, count, isUncat){
-      var acts = '';
+      var prevs = getFolderPreviews(id);
+      var idx = folderPrev[id] || 0;
+      if (idx >= prevs.length) { idx = 0; folderPrev[id] = 0; }
+      var hasImg = prevs.length > 0;
+      var thumbHtml = hasImg
+        ? '<div class="fd-thumb" style="background-image:url(\''+esc(prevs[idx])+'\')">'+
+            '<div class="fd-badge">'+FOLDER_SVG_SMALL+(isUncat?'未分類':'資料夾')+'</div>'+
+            '<div class="fd-cnt">'+count+' 筆</div>'+
+            '<button class="fd-arr fd-prev" type="button" title="上一張">‹</button>'+
+            '<button class="fd-arr fd-next" type="button" title="下一張">›</button>'+
+          '</div>'
+        : '<div class="fd-thumb empty">'+FOLDER_SVG_BIG+
+            '<div class="fd-badge">'+FOLDER_SVG_SMALL+(isUncat?'未分類':'資料夾')+'</div>'+
+            '<div class="fd-cnt">'+count+' 筆</div>'+
+          '</div>';
+      var rightActs = '';
       if (!isUncat){
-        acts = '<div class="fd-acts">'+
-          '<button class="btn sm" data-act="rename" data-id="'+id+'">✎ 改名</button>'+
-          '<button class="btn sm ghost danger" data-act="remove" data-id="'+id+'" title="刪除">✕</button>'+
-        '</div>';
+        rightActs = '<button class="fd-edit" type="button" title="改名">✎</button>' +
+                    '<button class="fd-del" type="button" title="刪除">✕</button>';
       }
       return '<div class="card-folder'+(isUncat?' uncat':'')+'" data-fid="'+id+'" title="點擊進入">'+
-        '<div class="fd-icon">'+FOLDER_SVG+'</div>'+
-        '<div class="fd-body"><span class="fd-name">'+esc(label)+'</span><span class="fd-count">'+count+' 筆 ›</span></div>'+
-        acts+
+        thumbHtml +
+        '<div class="fd-body">'+
+          '<div class="fd-name-wrap"><span class="fd-name">'+esc(label)+'</span></div>'+
+          rightActs +
+          '<span class="fd-go">›</span>'+
+        '</div>'+
       '</div>';
+    }
+
+    // 名稱旁邊行內改名
+    function startInlineRename(card, fid){
+      var f = folders.find(function(x){return x.id===fid;}); if(!f) return;
+      var wrap = card.querySelector('.fd-name-wrap');
+      var nameSpan = card.querySelector('.fd-name');
+      if (!wrap || !nameSpan) return;
+      var inp = document.createElement('input');
+      inp.type='text'; inp.className='fd-name-input'; inp.value=f.label;
+      wrap.replaceChild(inp, nameSpan);
+      inp.focus(); inp.select();
+      var done=false;
+      function commit(save){
+        if (done) return; done=true;
+        var val = inp.value.trim();
+        // 回填顯示
+        var span = document.createElement('span');
+        span.className='fd-name';
+        span.textContent = save ? (val || f.label) : f.label;
+        wrap.replaceChild(span, inp);
+        if (save && val && val !== f.label){
+          api('/api/items/'+fid,{method:'PUT',body:JSON.stringify({data:{label:val}})})
+            .then(function(){ toast('✓ 已改名'); reloadAll(); })
+            .catch(function(e){ toast('❌ '+e.message); reloadAll(); });
+        }
+      }
+      inp.addEventListener('keydown',function(e){
+        if(e.key==='Enter'){ e.preventDefault(); commit(true); }
+        else if(e.key==='Escape'){ e.preventDefault(); commit(false); }
+      });
+      inp.addEventListener('blur',function(){ commit(true); });
+      inp.addEventListener('click',function(e){ e.stopPropagation(); });
     }
 
     // ── Composer 多張圖 ──
@@ -449,7 +555,7 @@
       finally{ btn.disabled=false; }
     }
 
-    // ── 資料夾管理 ──
+    // ── 資料夾管理（新增還是用 modal 比較清楚）──
     async function createFolder(){
       openModal({
         title: '新增資料夾',
@@ -461,23 +567,6 @@
           try{
             await api('/api/items',{method:'POST',body:JSON.stringify({kind:'folder',data:{label:name}})});
             toast('✓ 已建立資料夾「'+name+'」');
-            await reloadAll();
-            return true;
-          }catch(e){ toast('❌ '+e.message); return false; }
-        }
-      });
-    }
-    async function renameFolder(id){
-      var f = folders.find(function(x){return x.id===id;}); if(!f) return;
-      openModal({
-        title:'重新命名',
-        fields:[{key:'label', label:'新名稱', value:f.label}],
-        okLabel:'更新',
-        onOk: async function(v){
-          var name=(v.label||'').trim(); if(!name){ toast('請輸入名稱'); return false; }
-          try{
-            await api('/api/items/'+id,{method:'PUT',body:JSON.stringify({data:{label:name}})});
-            toast('✓ 已更新');
             await reloadAll();
             return true;
           }catch(e){ toast('❌ '+e.message); return false; }
@@ -522,7 +611,6 @@
       });
     }
 
-    // ── 小型 Modal ──
     function openModal(opts){
       var bg = document.createElement('div'); bg.className='modal-bg';
       var box = document.createElement('div'); box.className='modal-box';
@@ -562,7 +650,6 @@
     });
     $('#save').addEventListener('click',saveItem);
     $('#cancel').addEventListener('click',resetComposer);
-    $('#search').addEventListener('input',render);
     $('#sort').addEventListener('change',function(e){ sortKey=e.target.value; render(); });
 
     (function(){
