@@ -75,17 +75,29 @@
       var text=$('#src').value.trim();
       var ctx=$('#ctx').value.trim();
       if(!text){ toast('請貼中文台詞'); $('#src').focus(); return; }
-      var btn=$('#go'); btn.disabled=true; var stat=$('#stat');
-      stat.textContent='⏳ 翻譯中…';
-      $('#out').className='out empty'; $('#out').textContent='〉 思考中…';
+      var btn=$('#go'); btn.disabled=true; btn.textContent='翻譯中…';
+      var stat=$('#stat');
+      var t0=Date.now();
+      stat.textContent='⏳ AI 翻譯中 · 0 秒（中文約 20-60 秒，請耐心等候）';
+      $('#out').className='out empty'; $('#out').textContent='〉 AI 正在翻譯，請稍候…';
+      // 每秒更新計時，讓使用者知道還在跑
+      var ticker=setInterval(function(){
+        var s=Math.floor((Date.now()-t0)/1000);
+        stat.textContent='⏳ AI 翻譯中 · '+s+' 秒（中文約 20-60 秒，請耐心等候）';
+      },1000);
       try{
         var d=await api('/api/dialogue',{ method:'POST', body: JSON.stringify({ text:text, context:ctx }) });
+        clearInterval(ticker);
         $('#out').className='out mono'; $('#out').textContent=d.text;
         await api('/api/items',{ method:'POST', body: JSON.stringify({ kind:'dialogue', data:{ source:text, context:ctx, en:d.text } }) });
-        stat.textContent='✓ 完成並已儲存到雲端';
+        stat.textContent='✓ 完成（共 '+Math.floor((Date.now()-t0)/1000)+' 秒）並已儲存到雲端';
         loadHistory();
-      }catch(e){ stat.textContent='❌ '+e.message; $('#out').className='out empty'; $('#out').textContent='〉 失敗：'+e.message; }
-      finally{ btn.disabled=false; }
+      }catch(e){
+        clearInterval(ticker);
+        stat.textContent='❌ '+e.message;
+        $('#out').className='out empty'; $('#out').textContent='〉 失敗：'+e.message;
+      }
+      finally{ btn.disabled=false; btn.textContent='翻譯'; }
     }
 
     async function loadHistory(){

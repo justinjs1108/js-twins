@@ -17,11 +17,23 @@
     .tab{font-family:var(--fm);font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;border:0;background:none;color:var(--text-2);padding:10px 20px;border-radius:999px;cursor:pointer;transition:all .25s var(--ease)}
     .tab.on{background:#fff;color:#000;font-weight:500}
     .tab .c{opacity:.5;margin-left:7px}
-    .c-text{font-family:var(--fm);font-size:13px;line-height:1.75;color:var(--text-2);white-space:pre-wrap;word-break:break-word;background:rgba(0,0,0,.32);border:1px solid var(--line-soft);border-radius:8px;padding:10px 12px;margin-top:6px;max-height:140px;overflow:auto}
-    .chips-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center}
-    .chip{font-family:var(--fm);font-size:11px;color:var(--text-2);border:1px solid var(--line);border-radius:999px;padding:3px 9px}
-    .author{font-family:var(--fm);font-size:10.5px;color:var(--muted);margin-left:auto}
     .editing-flag{font-family:var(--fm);font-size:11.5px;letter-spacing:.1em;color:var(--muted);min-width:0;flex:1}
+
+    /* ── 網格畫面：大縮圖 + 名稱 + 按鈕 ── */
+    .grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+    .card-v{border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.01));overflow:hidden;display:flex;flex-direction:column;transition:border-color .25s,transform .25s,box-shadow .25s}
+    .card-v:hover{border-color:rgba(255,255,255,.4);transform:translateY(-3px);box-shadow:0 14px 32px rgba(0,0,0,.5)}
+    .card-v .cv-thumb{width:100%;aspect-ratio:4/3;background:rgba(0,0,0,.55) center/cover no-repeat;position:relative}
+    .card-v .cv-thumb.empty{display:grid;place-items:center;color:var(--muted);font-family:var(--fm);font-size:11px;letter-spacing:.16em;text-transform:uppercase;background:repeating-linear-gradient(135deg,rgba(255,255,255,.02) 0 10px,rgba(255,255,255,.04) 10px 20px)}
+    .card-v .cv-body{padding:14px 16px 4px}
+    .card-v .cv-name{font-family:var(--fd);font-weight:800;font-size:16px;letter-spacing:-.005em;line-height:1.3;color:var(--text)}
+    .card-v .cv-name.empty{color:var(--muted);font-weight:500;font-style:italic}
+    .card-v .cv-meta{font-family:var(--fm);font-size:10.5px;color:var(--muted);margin-top:4px;letter-spacing:.04em;display:flex;justify-content:space-between;gap:6px}
+    .card-v .cv-tags{display:flex;gap:5px;flex-wrap:wrap;margin:10px 0 0;align-items:center}
+    .card-v .cv-tags .chip{font-family:var(--fm);font-size:10.5px;color:var(--text-2);border:1px solid var(--line);border-radius:999px;padding:2px 8px}
+    .card-v .cv-acts{padding:10px 14px 14px;display:flex;gap:6px;margin-top:auto}
+    .card-v .cv-acts .btn{flex:1;padding:8px 6px;font-size:11px;letter-spacing:.06em}
+    .card-v .cv-acts .btn.danger{flex:0 0 auto;padding:8px 10px}
   </style>
 </head>
 <body>
@@ -38,7 +50,7 @@
     <div class="hero">
       <span class="no">02 / PROMPT VAULT</span>
       <h1>Prompt 整理</h1>
-      <p>把你的 Midjourney 與 Nano Banana 提示詞收進來，<b style="color:#fff">配上一張縮圖</b>，掃一眼就知道是什麼畫面。所有人共用、雲端永久。</p>
+      <p>用<b style="color:#fff">縮圖</b>就能一眼看出是什麼提示詞。所有人共用、雲端永久。</p>
     </div>
 
     <div class="tabs" id="tabs">
@@ -51,17 +63,15 @@
       <input id="f-title" type="text" placeholder="例如：賽博龐克下雨夜街景" />
       <label class="block">提示詞</label>
       <textarea id="f-text" rows="5" placeholder="把提示詞貼在這裡…"></textarea>
-      <label class="block">標籤（用逗號分隔）</label>
+      <label class="block">標籤（用逗號分隔，可留空）</label>
       <input id="f-tags" type="text" placeholder="例如：cyberpunk, night, neon" />
 
       <div class="thumb-row">
-        <div class="thumb-box" id="thumb-box" title="點擊上傳縮圖（自動壓縮到約 50KB）">
+        <div class="thumb-box" id="thumb-box" title="點擊上傳縮圖">
           <span class="ph">📷 點擊<br>上傳縮圖</span>
           <button type="button" class="thumb-rm" id="thumb-rm" title="移除縮圖">✕</button>
         </div>
-        <div class="thumb-tip">
-          建議放一張預覽圖（截圖或產出範例），方便你和朋友掃一眼就知道是什麼。會自動壓縮、不會占太多空間。
-        </div>
+        <div class="thumb-tip">放一張預覽圖（截圖或產出範例），會自動壓縮。</div>
       </div>
 
       <div class="actions">
@@ -69,17 +79,14 @@
         <button id="cancel" class="btn ghost sm" style="display:none">取消編輯</button>
         <button id="save" class="btn primary">＋ 儲存提示詞</button>
       </div>
-      <span id="stat" class="stat" style="display:block;margin-top:8px"></span>
     </section>
 
     <div class="actions" style="margin-bottom:14px">
-      <input id="search" class="search" style="flex:1;background:rgba(0,0,0,.35);color:var(--text);border:1px solid var(--line);border-radius:999px;padding:11px 18px;font-size:14px;font-family:inherit" placeholder="🔍 搜尋名稱、提示詞、標籤…" />
+      <input id="search" class="search" style="flex:1;background:rgba(0,0,0,.35);color:var(--text);border:1px solid var(--line);border-radius:999px;padding:11px 18px;font-size:14px;font-family:inherit" placeholder="🔍 搜尋名稱、標籤、提示詞內容…" />
       <span id="count" class="stat" style="flex:0 0 auto"></span>
     </div>
 
-    <section class="history" style="margin-top:0">
-      <div class="h-list" id="list"></div>
-    </section>
+    <div class="grid" id="list"></div>
   </main>
 
   <div class="toast" id="toast"></div>
@@ -91,7 +98,7 @@
     var KIND={mj:'prompt-mj',nb:'prompt-nb'};
     var cache={mj:null,nb:null};
     var editingId=null;
-    var currentThumb=null; // dataURL or null
+    var currentThumb=null;
 
     function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
     function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('show');},1800);}
@@ -116,7 +123,7 @@
         cache[which]=d.items||[];
         $('#c-'+which).textContent=cache[which].length;
         if(which===tab) render();
-      }catch(e){ if(which===tab) $('#list').innerHTML='<div class="h-empty">載入失敗：'+esc(e.message)+'</div>'; }
+      }catch(e){ if(which===tab) $('#list').innerHTML='<div class="h-empty" style="grid-column:1/-1">載入失敗：'+esc(e.message)+'</div>'; }
     }
 
     function render(){
@@ -129,22 +136,27 @@
       });
       $('#count').textContent=items.length+' 筆';
       var box=$('#list');
-      if(!items.length){ box.innerHTML='<div class="h-empty">'+(q?'找不到符合的提示詞。':'這個分類還沒有提示詞。')+'</div>'; return; }
+      if(!items.length){ box.innerHTML='<div class="h-empty" style="grid-column:1/-1">'+(q?'找不到符合的提示詞。':'這個分類還沒有提示詞。')+'</div>'; return; }
       box.innerHTML=items.map(function(it){
         var d=it.data||{};
-        var date=new Date(it.updated_at||it.created_at).toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
-        var tags=(d.tags||[]).map(function(g){return '<span class="chip">'+esc(g)+'</span>';}).join('');
-        var by=it.created_by?'<span class="author">— '+esc(it.created_by)+'</span>':'';
+        var when=new Date(it.updated_at||it.created_at).toLocaleString('zh-TW',{month:'numeric',day:'numeric'});
+        var by=it.created_by?esc(it.created_by):'';
+        var tags=(d.tags||[]).slice(0,4).map(function(g){return '<span class="chip">'+esc(g)+'</span>';}).join('');
         var thumb=d.thumbnail
-          ? '<div class="h-thumb" style="background-image:url(\''+esc(d.thumbnail)+'\')"></div>'
-          : '<div class="h-thumb empty">無縮圖</div>';
-        return '<div class="h-item" data-id="'+it.id+'">'+thumb+
-          '<div class="h-main">'+
-            '<div class="h-item-head"><div class="h-name'+(d.title?'':' empty')+'">'+esc(d.title||'未命名')+'</div><span class="h-meta">'+date+'</span></div>'+
-            '<div class="c-text">'+esc(d.text||'')+'</div>'+
-            (tags||by?'<div class="chips-row">'+tags+by+'</div>':'')+
-            '<div class="h-acts" style="margin-top:10px"><button class="btn sm edit">✎ 編輯</button><button class="btn sm copy">⧉ 複製</button><button class="btn sm ghost danger del">刪除</button></div>'+
-          '</div></div>';
+          ? '<div class="cv-thumb" style="background-image:url(\''+esc(d.thumbnail)+'\')"></div>'
+          : '<div class="cv-thumb empty">無縮圖</div>';
+        return '<div class="card-v" data-id="'+it.id+'">'+thumb+
+          '<div class="cv-body">'+
+            '<div class="cv-name'+(d.title?'':' empty')+'">'+esc(d.title||'未命名')+'</div>'+
+            '<div class="cv-meta"><span>'+when+'</span><span>'+by+'</span></div>'+
+            (tags?'<div class="cv-tags">'+tags+'</div>':'')+
+          '</div>'+
+          '<div class="cv-acts">'+
+            '<button class="btn sm primary copy">⧉ 複製 Prompt</button>'+
+            '<button class="btn sm edit">✎ 編輯</button>'+
+            '<button class="btn sm ghost danger del" title="刪除">✕</button>'+
+          '</div>'+
+        '</div>';
       }).join('');
     }
 
@@ -152,8 +164,7 @@
       currentThumb=dataUrl||null;
       var box=$('#thumb-box');
       if(currentThumb){
-        var existing=box.querySelector('img');
-        if(existing) existing.remove();
+        var existing=box.querySelector('img'); if(existing) existing.remove();
         var img=document.createElement('img'); img.src=currentThumb;
         box.insertBefore(img, box.querySelector('.thumb-rm'));
         box.classList.add('has-thumb');
@@ -173,7 +184,7 @@
 
     async function pickThumb(){
       var f=await JSTImg.pickFile(); if(!f) return;
-      try{ var url=await JSTImg.resize(f); setThumb(url); toast('已選好縮圖'); }
+      try{ var url=await JSTImg.resize(f, 640, 480, 0.82); setThumb(url); toast('已選好縮圖'); }
       catch(e){ toast('❌ '+e.message); }
     }
 
@@ -210,10 +221,12 @@
     $('#thumb-rm').addEventListener('click',function(e){ e.stopPropagation(); setThumb(null); });
 
     $('#list').addEventListener('click',async function(e){
-      var item=e.target.closest('.h-item'); if(!item) return;
+      var item=e.target.closest('.card-v'); if(!item) return;
       var id=item.dataset.id; var it=(cache[tab]||[]).find(function(x){return x.id===id;}); if(!it) return;
       var d=it.data||{};
-      if(e.target.classList.contains('edit')){
+      if(e.target.classList.contains('copy')){
+        navigator.clipboard.writeText(d.text||'').then(function(){toast('⧉ 已複製：'+(d.title||'提示詞'));});
+      } else if(e.target.classList.contains('edit')){
         editingId=id;
         $('#f-title').value=d.title||''; $('#f-text').value=d.text||''; $('#f-tags').value=(d.tags||[]).join(', ');
         setThumb(d.thumbnail||null);
@@ -221,8 +234,6 @@
         $('#cancel').style.display='inline-block';
         $('#flag').textContent='編輯中…';
         window.scrollTo({top:0,behavior:'smooth'}); $('#f-title').focus();
-      } else if(e.target.classList.contains('copy')){
-        navigator.clipboard.writeText(d.text||'').then(function(){toast('⧉ 已複製提示詞');});
       } else if(e.target.classList.contains('del')){
         if(!confirm('刪除這筆？所有人都會看不到。')) return;
         try{ await api('/api/items/'+id,{method:'DELETE'}); if(editingId===id) resetComposer(); reload(tab); toast('已刪除'); }
