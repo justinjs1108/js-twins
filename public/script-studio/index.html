@@ -8,7 +8,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;500;800;900&family=Hanken+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="studio.css" />
+  <link rel="stylesheet" href="/css/bg-cyber.css" />
+  <link rel="stylesheet" href="/css/tool.css" />
+  <script src="/js/bg-cyber.js"></script>
   <script src="/js/guard.js"></script>
+  <script src="/js/img.js"></script>
 </head>
 <body>
   <canvas id="dust" aria-hidden="true"></canvas>
@@ -96,7 +100,14 @@
         <button id="save-current" class="btn primary">儲存目前劇本</button>
         <span id="saves-status" class="stat"></span>
       </div>
-      <div id="scripts-list" class="scripts-list"></div>
+      <div class="thumb-row" style="margin-top:6px">
+        <div class="thumb-box" id="thumb-box" title="點擊上傳劇本縮圖（可選）">
+          <span class="ph">📷 點擊<br>上傳縮圖</span>
+          <button type="button" class="thumb-rm" id="thumb-rm" title="移除縮圖">✕</button>
+        </div>
+        <div class="thumb-tip">附一張封面圖、海報、或代表畫面（可選）。建立時加，或之後在每筆按「✎ 編輯」改名換圖。</div>
+      </div>
+      <div id="scripts-list" class="scripts-list" style="margin-top:14px"></div>
     </section>
   </main>
 

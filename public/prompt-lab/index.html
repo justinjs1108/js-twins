@@ -8,7 +8,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;500;800;900&family=Hanken+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/tool.css" />
+  <link rel="stylesheet" href="/css/bg-cyber.css" />
+  <script src="/js/bg-cyber.js"></script>
   <script src="/js/guard.js"></script>
+  <script src="/js/img.js"></script>
 </head>
 <body>
   <header class="nav">
@@ -62,11 +65,25 @@
         </optgroup>
       </select>
 
+      <label class="block">名稱（可留空）</label>
+      <input id="name" type="text" placeholder="例如：電影感賽博街景 v1" />
+
       <label class="block">你的粗略想法</label>
       <textarea id="idea" rows="6" placeholder="用你自己的話描述要做什麼。例如：&#10;&#10;一張賽博龐克下雨夜的街景，要有電影感、霓虹反光、女主角拿一把傘走進畫面深處。"></textarea>
 
+      <div class="thumb-row">
+        <div class="thumb-box" id="thumb-box" title="點擊上傳縮圖（可選）">
+          <span class="ph">📷 點擊<br>上傳縮圖</span>
+          <button type="button" class="thumb-rm" id="thumb-rm" title="移除縮圖">✕</button>
+        </div>
+        <div class="thumb-tip">附一張參考圖或產出範例，方便日後辨識。</div>
+      </div>
+
       <div class="actions">
+        <span class="editing-flag" id="flag" style="font-family:var(--fm);font-size:11.5px;letter-spacing:.1em;color:var(--muted);flex:1"></span>
+        <button id="cancel" class="btn ghost sm" style="display:none">取消編輯</button>
         <button id="go" class="btn primary">優化提示詞</button>
+        <button id="save" class="btn" style="display:none">✓ 更新</button>
         <span id="stat" class="stat"></span>
       </div>
     </section>
@@ -86,6 +103,7 @@
   (function(){
     var $=function(s){return document.querySelector(s);};
     var cache=[]; var lastText='';
+    var editingId=null; var currentThumb=null;
     function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
     function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('show');},1800);}
 
@@ -127,9 +145,35 @@
       return m ? m[1].trim() : text.trim();
     }
 
+    function setThumb(url){
+      currentThumb=url||null;
+      var box=$('#thumb-box');
+      if(currentThumb){
+        var ex=box.querySelector('img'); if(ex) ex.remove();
+        var img=document.createElement('img'); img.src=currentThumb;
+        box.insertBefore(img, box.querySelector('.thumb-rm'));
+        box.classList.add('has-thumb');
+      } else {
+        var ex2=box.querySelector('img'); if(ex2) ex2.remove();
+        box.classList.remove('has-thumb');
+      }
+    }
+    function resetComposer(){
+      editingId=null; lastText='';
+      $('#name').value=''; $('#idea').value=''; setThumb(null);
+      $('#go').style.display=''; $('#save').style.display='none'; $('#cancel').style.display='none'; $('#flag').textContent='';
+      $('#out').className='out empty'; $('#out').textContent='〉 優化後的提示詞會出現在這裡。'; $('#out-actions').classList.add('hidden');
+    }
+    async function pickThumb(){
+      var f=await JSTImg.pickFile(); if(!f) return;
+      try{ var url=await JSTImg.resize(f); setThumb(url); toast('已選好縮圖'); }
+      catch(e){ toast('❌ '+e.message); }
+    }
+
     async function optimize(){
       var idea=$('#idea').value.trim();
       var tool=$('#tool').value;
+      var name=$('#name').value.trim();
       if(!idea){ toast('請寫下你的粗略想法'); $('#idea').focus(); return; }
       var btn=$('#go'); btn.disabled=true; var stat=$('#stat');
       stat.textContent='⏳ 優化中…';
@@ -138,10 +182,20 @@
         var d=await api('/api/prompt-lab',{ method:'POST', body: JSON.stringify({ idea:idea, tool:tool }) });
         lastText=d.text;
         $('#out').className='out'; $('#out').innerHTML=render(d.text); $('#out-actions').classList.remove('hidden');
-        await api('/api/items',{ method:'POST', body: JSON.stringify({ kind:'prompt-lab', data:{ idea:idea, tool:tool, text:d.text } }) });
+        await api('/api/items',{ method:'POST', body: JSON.stringify({ kind:'prompt-lab', data:{ name:name, idea:idea, tool:tool, text:d.text, thumbnail:currentThumb||'' } }) });
         stat.textContent='✓ 完成並已儲存到雲端';
         loadHistory();
       }catch(e){ stat.textContent='❌ '+e.message; $('#out').className='out empty'; $('#out').textContent='〉 失敗：'+e.message; }
+      finally{ btn.disabled=false; }
+    }
+    async function updateItem(){
+      if(!editingId) return;
+      var name=$('#name').value.trim(); var idea=$('#idea').value.trim(); var tool=$('#tool').value;
+      var it=cache.find(function(x){return x.id===editingId;}); if(!it) return;
+      var data=Object.assign({}, it.data||{}, { name:name, idea:idea, tool:tool, thumbnail:currentThumb||'' });
+      var btn=$('#save'); btn.disabled=true;
+      try{ await api('/api/items/'+editingId,{method:'PUT',body:JSON.stringify({data:data})}); toast('✓ 已更新'); resetComposer(); loadHistory(); }
+      catch(e){ toast('❌ '+e.message); }
       finally{ btn.disabled=false; }
     }
 
@@ -154,15 +208,27 @@
           var data=it.data||{};
           var when=new Date(it.updated_at||it.created_at).toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
           var by=it.created_by?' · '+esc(it.created_by):'';
-          var head=esc((data.tool||'')+' · '+(data.idea||'').slice(0,60))+((data.idea||'').length>60?'…':'');
-          return '<div class="h-item" data-id="'+it.id+'">'+
-            '<div class="h-item-head"><span class="h-meta">'+when+by+'　·　'+head+'</span>'+
-            '<div class="h-acts"><button class="btn sm view">展開</button><button class="btn sm copy">⧉ 複製</button><button class="btn sm ghost danger del">刪除</button></div></div>'+
-          '</div>';
+          var name=data.name||(data.tool+' · '+(data.idea||'').slice(0,40));
+          var thumb=data.thumbnail
+            ? '<div class="h-thumb" style="background-image:url(\''+esc(data.thumbnail)+'\')"></div>'
+            : '<div class="h-thumb empty">無縮圖</div>';
+          return '<div class="h-item" data-id="'+it.id+'">'+thumb+
+            '<div class="h-main">'+
+              '<div class="h-item-head"><div class="h-name'+(data.name?'':' empty')+'">'+esc(name)+'</div><span class="h-meta">'+esc(data.tool||'')+' · '+when+by+'</span></div>'+
+              '<div class="h-acts" style="margin-top:8px"><button class="btn sm view">展開</button><button class="btn sm edit">✎ 編輯</button><button class="btn sm copy">⧉ 複製</button><button class="btn sm ghost danger del">刪除</button></div>'+
+            '</div></div>';
         }).join('');
         box.querySelectorAll('.view').forEach(function(b){ b.addEventListener('click',function(){
           var id=b.closest('.h-item').dataset.id; var it=cache.find(function(x){return x.id===id;});
-          if(it){ lastText=it.data.text||''; $('#out').className='out'; $('#out').innerHTML=render(lastText); $('#out-actions').classList.remove('hidden'); $('#idea').value=it.data.idea||''; window.scrollTo({top:0,behavior:'smooth'}); }
+          if(it){ lastText=it.data.text||''; $('#out').className='out'; $('#out').innerHTML=render(lastText); $('#out-actions').classList.remove('hidden'); window.scrollTo({top:0,behavior:'smooth'}); }
+        }); });
+        box.querySelectorAll('.edit').forEach(function(b){ b.addEventListener('click',function(){
+          var id=b.closest('.h-item').dataset.id; var it=cache.find(function(x){return x.id===id;}); if(!it) return;
+          editingId=id;
+          $('#name').value=it.data.name||''; $('#idea').value=it.data.idea||''; $('#tool').value=it.data.tool||$('#tool').value; setThumb(it.data.thumbnail||null);
+          $('#go').style.display='none'; $('#save').style.display=''; $('#cancel').style.display=''; $('#flag').textContent='編輯中…（內容文字不會重生成）';
+          lastText=it.data.text||''; $('#out').className='out'; $('#out').innerHTML=render(lastText); $('#out-actions').classList.remove('hidden');
+          window.scrollTo({top:0,behavior:'smooth'}); $('#name').focus();
         }); });
         box.querySelectorAll('.copy').forEach(function(b){ b.addEventListener('click',function(){
           var id=b.closest('.h-item').dataset.id; var it=cache.find(function(x){return x.id===id;});
@@ -170,12 +236,16 @@
         }); });
         box.querySelectorAll('.del').forEach(function(b){ b.addEventListener('click',async function(){
           if(!confirm('刪除這筆？')) return;
-          try{ var id=b.closest('.h-item').dataset.id; await api('/api/items/'+id,{method:'DELETE'}); loadHistory(); toast('已刪除'); }catch(e){ toast('❌ '+e.message); }
+          try{ var id=b.closest('.h-item').dataset.id; await api('/api/items/'+id,{method:'DELETE'}); if(editingId===id) resetComposer(); loadHistory(); toast('已刪除'); }catch(e){ toast('❌ '+e.message); }
         }); });
       }catch(e){ $('#hlist').innerHTML='<div class="h-empty">載入失敗：'+esc(e.message)+'</div>'; }
     }
 
     $('#go').addEventListener('click',optimize);
+    $('#save').addEventListener('click',updateItem);
+    $('#cancel').addEventListener('click',resetComposer);
+    $('#thumb-box').addEventListener('click',function(e){ if(e.target.id==='thumb-rm') return; pickThumb(); });
+    $('#thumb-rm').addEventListener('click',function(e){ e.stopPropagation(); setThumb(null); });
     $('#copy').addEventListener('click',function(){
       if(!lastText){ toast('沒有可複製的內容'); return; }
       navigator.clipboard.writeText(extractPrompt(lastText)).then(function(){toast('⧉ 已複製提示詞');});

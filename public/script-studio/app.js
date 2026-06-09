@@ -131,6 +131,12 @@ function bindEvents() {
   document.getElementById('export-btn').addEventListener('click', exportMarkdown);
   document.getElementById('reset-btn').addEventListener('click', resetProject);
   document.getElementById('save-current').addEventListener('click', saveCurrent);
+  const tbox = document.getElementById('thumb-box');
+  if (tbox) {
+    tbox.addEventListener('click', (e) => { if (e.target.id === 'thumb-rm') return; pickScriptThumb(); });
+    const trm = document.getElementById('thumb-rm');
+    if (trm) trm.addEventListener('click', (e) => { e.stopPropagation(); setScriptThumb(null); });
+  }
 }
 
 // ---- 步驟切換 ----
@@ -340,6 +346,26 @@ function restructureWith(id) {
 //  按「儲存目前劇本」才會把整份送到雲端，朋友也能看到。
 // ============================================================
 let savesCache = [];
+let scriptThumb = null;
+let scriptEditingId = null;
+
+function setScriptThumb(url) {
+  scriptThumb = url || null;
+  const box = document.getElementById('thumb-box'); if (!box) return;
+  const existing = box.querySelector('img'); if (existing) existing.remove();
+  if (scriptThumb) {
+    const img = document.createElement('img'); img.src = scriptThumb;
+    box.insertBefore(img, box.querySelector('.thumb-rm'));
+    box.classList.add('has-thumb');
+  } else { box.classList.remove('has-thumb'); }
+}
+async function pickScriptThumb() {
+  if (!window.JSTImg) return;
+  const f = await JSTImg.pickFile(); if (!f) return;
+  try { const url = await JSTImg.resize(f); setScriptThumb(url); document.getElementById('saves-status').textContent = '已選好縮圖'; }
+  catch (e) { document.getElementById('saves-status').textContent = '❌ ' + e.message; }
+}
+
 async function api(path, opts) {
   opts = opts || {}; opts.credentials = 'same-origin';
   opts.headers = Object.assign({ 'Content-Type': 'application/json' }, opts.headers || {});
@@ -357,11 +383,41 @@ async function renderSaves() {
   box.innerHTML = savesCache.map((it) => {
     const d = it.data || {}; const name = d.name || '未命名劇本';
     const when = new Date(it.updated_at || it.created_at).toLocaleString('zh-TW', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-    const by = it.created_by ? '<span class="script-when">— ' + escapeHtml(it.created_by) + '</span>' : '';
-    return `<div class="script-item"><span class="script-name">${escapeHtml(name)}</span><span class="script-when">${when}</span>${by}<button class="btn sm load-script" data-id="${it.id}">載入</button><button class="btn sm ghost danger del-script" data-id="${it.id}">刪除</button></div>`;
+    const by = it.created_by ? '<span class="h-meta" style="margin-left:8px">— ' + escapeHtml(it.created_by) + '</span>' : '';
+    const thumb = d.thumbnail
+      ? `<div class="h-thumb" style="background-image:url('${escapeHtml(d.thumbnail)}')"></div>`
+      : '<div class="h-thumb empty">無縮圖</div>';
+    return `<div class="h-item" data-id="${it.id}" style="padding:14px;border:1px solid rgba(255,255,255,.14);border-radius:10px;background:rgba(0,0,0,.28);margin-bottom:8px">${thumb}
+      <div class="h-main">
+        <div class="h-item-head"><div class="h-name${d.name?'':' empty'}">${escapeHtml(name)}</div><span class="h-meta">${when}${by}</span></div>
+        <div class="h-acts" style="margin-top:10px">
+          <button class="btn sm load-script">載入</button>
+          <button class="btn sm edit-script">✎ 改名/換圖</button>
+          <button class="btn sm ghost danger del-script">刪除</button>
+        </div>
+      </div></div>`;
   }).join('');
-  box.querySelectorAll('.load-script').forEach((b) => b.addEventListener('click', () => loadProject(b.dataset.id)));
-  box.querySelectorAll('.del-script').forEach((b) => b.addEventListener('click', () => deleteSaved(b.dataset.id)));
+  box.querySelectorAll('.load-script').forEach((b) => b.addEventListener('click', (e) => loadProject(e.target.closest('.h-item').dataset.id)));
+  box.querySelectorAll('.del-script').forEach((b) => b.addEventListener('click', (e) => deleteSaved(e.target.closest('.h-item').dataset.id)));
+  box.querySelectorAll('.edit-script').forEach((b) => b.addEventListener('click', (e) => editSavedScript(e.target.closest('.h-item').dataset.id)));
+}
+
+async function editSavedScript(id) {
+  const it = savesCache.find((x) => x.id === id); if (!it) return;
+  const oldName = (it.data && it.data.name) || '未命名劇本';
+  const newName = prompt('改名（按取消可保留原名）：', oldName);
+  if (newName === null) return;
+  let thumb = (it.data && it.data.thumbnail) || '';
+  if (window.JSTImg && confirm('要換縮圖嗎？\n（按「確定」會打開選圖視窗，按「取消」保留原縮圖）')) {
+    const f = await JSTImg.pickFile();
+    if (f) { try { thumb = await JSTImg.resize(f); } catch (e) { alert('縮圖失敗：' + e.message); return; } }
+  }
+  const data = Object.assign({}, it.data || {}, { name: (newName.trim() || oldName), thumbnail: thumb });
+  try {
+    await api('/api/items/' + id, { method: 'PUT', body: JSON.stringify({ data: data }) });
+    document.getElementById('saves-status').textContent = '✓ 已更新';
+    renderSaves();
+  } catch (e) { document.getElementById('saves-status').textContent = '❌ ' + e.message; }
 }
 
 async function saveCurrent() {
@@ -371,8 +427,8 @@ async function saveCurrent() {
   const status = document.getElementById('saves-status');
   status.textContent = '⏳ 儲存到雲端…';
   try {
-    await api('/api/items', { method: 'POST', body: JSON.stringify({ kind: 'script', data: { name, project: JSON.parse(JSON.stringify(project)) } }) });
-    nameInp.value = ''; status.textContent = '✓ 已儲存「' + name + '」到雲端';
+    await api('/api/items', { method: 'POST', body: JSON.stringify({ kind: 'script', data: { name, project: JSON.parse(JSON.stringify(project)), thumbnail: scriptThumb || '' } }) });
+    nameInp.value = ''; setScriptThumb(null); status.textContent = '✓ 已儲存「' + name + '」到雲端';
     renderSaves();
   } catch (e) { status.textContent = '❌ ' + e.message; }
 }

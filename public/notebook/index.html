@@ -7,191 +7,184 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;500;800;900&family=Hanken+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/tool.css" />
+  <link rel="stylesheet" href="/css/bg-cyber.css" />
+  <script src="/js/bg-cyber.js"></script>
   <script src="/js/guard.js"></script>
+  <script src="/js/img.js"></script>
   <style>
-    :root{
-      --bg:#000;--bg-2:#0a0a0c;--text:#f4f4f4;--text-2:#a8a8ac;--muted:#6a6a70;
-      --line:rgba(255,255,255,.14);--line-soft:rgba(255,255,255,.07);--glass:rgba(255,255,255,.04);
-      --fd:'Archivo',sans-serif;--fb:'Hanken Grotesk','PingFang TC','Noto Sans TC',system-ui,sans-serif;--fm:'JetBrains Mono',monospace;
-      --ease:cubic-bezier(.2,.7,.2,1);--pad:clamp(20px,5vw,72px);
-    }
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{background:var(--bg);color:var(--text);font-family:var(--fb);line-height:1.6;min-height:100vh;-webkit-font-smoothing:antialiased}
-    body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(60% 50% at 50% -10%,rgba(255,255,255,.05),transparent 70%)}
-    a{color:inherit}::selection{background:#fff;color:#000}
-    .wrap{max-width:1080px;margin:0 auto;padding:0 var(--pad) 100px}
-    header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:24px var(--pad);border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(0,0,0,.72);backdrop-filter:blur(14px);z-index:10}
-    .back{font-family:var(--fm);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--text-2);text-decoration:none;transition:color .2s}
-    .back:hover{color:#fff}
-    .h-title{font-family:var(--fm);font-size:11.5px;letter-spacing:.34em;text-transform:uppercase;color:var(--muted)}
-    .who{font-family:var(--fm);font-size:11.5px;color:var(--muted);letter-spacing:.06em}
-    .cloud{font-family:var(--fm);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);padding:5px 10px;border-radius:999px}
-    .cloud.live{color:#fff;border-color:rgba(255,255,255,.4)}
-    .hero{padding:48px 0 26px}
-    .hero .no{font-family:var(--fm);font-size:12px;letter-spacing:.3em;color:var(--muted)}
-    .hero h1{font-family:var(--fd);font-weight:900;font-size:clamp(34px,6vw,64px);letter-spacing:-.02em;line-height:1;margin:10px 0 8px}
-    .hero p{color:var(--text-2);max-width:560px;font-size:15px}
-    .composer{border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01));padding:18px;margin:18px 0 22px}
-    .composer input,.composer textarea{width:100%;background:rgba(0,0,0,.35);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:11px 13px;font-size:14px;font-family:inherit;margin-bottom:10px}
-    .composer input.title{font-family:var(--fd);font-weight:800;font-size:18px;letter-spacing:-.01em}
-    .composer textarea{font-size:14px;line-height:1.8;resize:vertical;min-height:140px}
-    .composer input:focus,.composer textarea:focus{outline:none;border-color:rgba(255,255,255,.4)}
-    .composer .row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-    .editing-flag{font-family:var(--fm);font-size:11.5px;letter-spacing:.1em;color:var(--muted)}
-    .btn{font-family:var(--fm);font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;border:1px solid var(--line);background:var(--glass);color:var(--text);border-radius:10px;padding:11px 18px;transition:all .2s}
-    .btn:hover{border-color:rgba(255,255,255,.5)}
-    .btn.primary{background:#fff;color:#000;border-color:#fff;font-weight:600}
-    .btn.primary:hover{box-shadow:0 0 22px rgba(255,255,255,.25)}
-    .btn.sm{padding:7px 12px;font-size:11.5px}
-    .btn.ghost{background:none}
-    .btn.danger:hover{border-color:#ff6b6b;color:#ff6b6b}
-    .toolbar{display:flex;gap:12px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
-    .search{flex:1;min-width:200px;background:rgba(0,0,0,.35);color:var(--text);border:1px solid var(--line);border-radius:999px;padding:11px 18px;font-size:14px;font-family:inherit}
-    .search:focus{outline:none;border-color:rgba(255,255,255,.4)}
-    .count{font-family:var(--fm);font-size:11.5px;letter-spacing:.1em;color:var(--muted)}
-    .list{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
-    .card{border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.01));padding:18px;transition:border-color .25s,transform .25s;display:flex;flex-direction:column}
-    .card:hover{border-color:rgba(255,255,255,.32);transform:translateY(-2px)}
-    .card .c-title{font-family:var(--fd);font-weight:800;font-size:17px;letter-spacing:-.01em;margin-bottom:6px}
-    .card .c-title.empty{color:var(--muted);font-weight:500;font-style:italic}
-    .card .c-date{font-family:var(--fm);font-size:11px;color:var(--muted);margin-bottom:10px;display:flex;justify-content:space-between;gap:8px}
-    .card .author{color:var(--text-2)}
-    .card .c-body{color:var(--text-2);font-size:13.5px;line-height:1.75;white-space:pre-wrap;word-break:break-word;flex:1;max-height:200px;overflow:auto}
-    .card .c-actions{display:flex;gap:8px;margin-top:14px;border-top:1px solid var(--line-soft);padding-top:12px}
-    .empty-state{text-align:center;color:var(--muted);padding:60px 20px;border:1px dashed var(--line);border-radius:16px;font-size:14px;grid-column:1/-1}
-    .toast{position:fixed;left:50%;bottom:34px;transform:translateX(-50%) translateY(20px);background:#fff;color:#000;font-family:var(--fm);font-size:12.5px;letter-spacing:.08em;padding:11px 20px;border-radius:999px;opacity:0;pointer-events:none;transition:all .3s var(--ease);z-index:50}
-    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .editing-flag{font-family:var(--fm);font-size:11.5px;letter-spacing:.1em;color:var(--muted);min-width:0;flex:1}
+    .author{font-family:var(--fm);font-size:10.5px;color:var(--muted)}
+    .c-body{color:var(--text-2);font-size:13.5px;line-height:1.75;white-space:pre-wrap;word-break:break-word;background:rgba(0,0,0,.32);border:1px solid var(--line-soft);border-radius:8px;padding:10px 12px;margin-top:6px;max-height:160px;overflow:auto}
   </style>
 </head>
 <body>
-  <header>
+  <header class="nav">
     <a class="back" href="/">← JS_TWINS</a>
     <span class="h-title">03 · Notebook</span>
-    <div style="display:flex;align-items:center;gap:12px">
+    <div class="h-right">
       <span class="who" id="who"></span>
       <span class="cloud" id="cloud">● 連線中…</span>
     </div>
   </header>
 
-  <div class="wrap">
+  <main class="wrap">
     <div class="hero">
       <span class="no">03 / NOTEBOOK</span>
       <h1>記事本</h1>
-      <p>會議紀錄、靈感、重點筆記。<b style="color:#fff">所有人共用、雲端永久保存。</b></p>
+      <p>會議紀錄、靈感、重點筆記。可以附一張縮圖，一眼就知道是哪一篇。<b style="color:#fff">所有人共用、雲端永久。</b></p>
     </div>
 
-    <div class="composer">
-      <input class="title" id="f-title" type="text" placeholder="標題（例如：2/14 製作會議）" />
-      <textarea id="f-body" placeholder="把會議重點、想法寫在這裡…"></textarea>
-      <div class="row">
-        <span class="editing-flag" id="flag"></span>
-        <span>
-          <button class="btn ghost sm" id="cancel" style="display:none">取消編輯</button>
-          <button class="btn primary" id="save">＋ 儲存筆記</button>
-        </span>
+    <section class="panel">
+      <label>標題</label>
+      <input id="f-title" type="text" placeholder="例如：2/14 製作會議" />
+      <label class="block">內容</label>
+      <textarea id="f-body" rows="6" placeholder="把會議重點、想法寫在這裡…"></textarea>
+
+      <div class="thumb-row">
+        <div class="thumb-box" id="thumb-box" title="點擊上傳縮圖">
+          <span class="ph">📷 點擊<br>上傳縮圖</span>
+          <button type="button" class="thumb-rm" id="thumb-rm" title="移除縮圖">✕</button>
+        </div>
+        <div class="thumb-tip">附一張截圖、白板照、靈感圖都行，會自動壓縮。</div>
       </div>
+
+      <div class="actions">
+        <span class="editing-flag" id="flag"></span>
+        <button id="cancel" class="btn ghost sm" style="display:none">取消編輯</button>
+        <button id="save" class="btn primary">＋ 儲存筆記</button>
+      </div>
+      <span id="stat" class="stat" style="display:block;margin-top:8px"></span>
+    </section>
+
+    <div class="actions" style="margin-bottom:14px">
+      <input id="search" class="search" style="flex:1;background:rgba(0,0,0,.35);color:var(--text);border:1px solid var(--line);border-radius:999px;padding:11px 18px;font-size:14px;font-family:inherit" placeholder="🔍 搜尋筆記…" />
+      <span id="count" class="stat" style="flex:0 0 auto"></span>
     </div>
 
-    <div class="toolbar">
-      <input class="search" id="search" type="text" placeholder="🔍 搜尋筆記…" />
-      <span class="count" id="count"></span>
-    </div>
-
-    <div class="list" id="list"></div>
-  </div>
+    <section class="history" style="margin-top:0">
+      <div class="h-list" id="list"></div>
+    </section>
+  </main>
 
   <div class="toast" id="toast"></div>
 
   <script>
   (function(){
-    var KIND='note';
-    var editingId=null;
-    var cache=[];
-    var me=null;
     var $=function(s){return document.querySelector(s);};
-    function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-    function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('show');},1700);}
+    var KIND='note';
+    var cache=[];
+    var editingId=null;
+    var currentThumb=null;
 
-    document.addEventListener('jstwins-auth', function(e){
-      me = e.detail; $('#who').textContent='👤 '+me.user;
-      $('#cloud').textContent='● 雲端已連線'; $('#cloud').classList.add('live');
+    function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+    function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('show');},1800);}
+
+    document.addEventListener('jstwins-auth',function(e){
+      $('#who').textContent='👤 '+e.detail.user;
+      $('#cloud').textContent='● 雲端已連線';$('#cloud').classList.add('live');
       reload();
     });
 
-    async function api(path, opts){
-      opts = opts || {}; opts.credentials='same-origin';
-      opts.headers = Object.assign({'Content-Type':'application/json'}, opts.headers||{});
-      var r = await fetch(path, opts); var d = await r.json();
-      if(!r.ok) throw new Error(d.error || ('HTTP '+r.status));
+    async function api(path,opts){
+      opts=opts||{}; opts.credentials='same-origin';
+      opts.headers=Object.assign({'Content-Type':'application/json'},opts.headers||{});
+      var r=await fetch(path,opts); var d=await r.json();
+      if(!r.ok) throw new Error(d.error||'HTTP '+r.status);
       return d;
     }
 
-    function resetComposer(){
-      editingId=null; $('#f-title').value=''; $('#f-body').value='';
-      $('#save').textContent='＋ 儲存筆記'; $('#cancel').style.display='none'; $('#flag').textContent='';
-    }
-
     async function reload(){
-      try { var d = await api('/api/items?kind=' + KIND); cache = d.items || []; render(); }
-      catch(e){ $('#list').innerHTML = '<div class="empty-state">載入失敗：'+esc(e.message)+'</div>'; }
+      try{ var d=await api('/api/items?kind='+KIND); cache=d.items||[]; render(); }
+      catch(e){ $('#list').innerHTML='<div class="h-empty">載入失敗：'+esc(e.message)+'</div>'; }
     }
 
     function render(){
       var q=$('#search').value.trim().toLowerCase();
-      var items=cache.filter(function(it){
-        var d=it.data||{};
-        return !q || ((d.title||'')+' '+(d.body||'')).toLowerCase().indexOf(q)>=0;
-      });
+      var items=cache.filter(function(it){ var d=it.data||{}; return !q || ((d.title||'')+' '+(d.body||'')).toLowerCase().indexOf(q)>=0; });
       $('#count').textContent=items.length+' 篇';
       var box=$('#list');
-      if(!items.length){ box.innerHTML='<div class="empty-state">'+(q?'找不到符合的筆記。':'還沒有筆記，從上面寫下第一篇吧。')+'</div>'; return; }
+      if(!items.length){ box.innerHTML='<div class="h-empty">'+(q?'找不到符合的筆記。':'還沒有筆記，從上面寫下第一篇吧。')+'</div>'; return; }
       box.innerHTML=items.map(function(it){
         var d=it.data||{};
         var date=new Date(it.updated_at||it.created_at).toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
-        var edited = it.updated_at && it.created_at && it.updated_at !== it.created_at ? ' · 已編輯' : '';
-        var by = it.created_by ? '<span class="author">— '+esc(it.created_by)+'</span>' : '';
-        return '<div class="card" data-id="'+it.id+'">'+
-          '<div class="c-title'+(d.title?'':' empty')+'">'+esc(d.title||'未命名筆記')+'</div>'+
-          '<div class="c-date"><span>'+date+edited+'</span>'+by+'</div>'+
-          '<div class="c-body">'+esc(d.body||'')+'</div>'+
-          '<div class="c-actions"><button class="btn sm edit">✎ 編輯</button><button class="btn sm copy">⧉ 複製</button><button class="btn sm ghost danger del">刪除</button></div>'+
-        '</div>';
+        var edited=it.updated_at&&it.created_at&&it.updated_at!==it.created_at?' · 已編輯':'';
+        var by=it.created_by?'<span class="author">— '+esc(it.created_by)+'</span>':'';
+        var thumb=d.thumbnail
+          ? '<div class="h-thumb" style="background-image:url(\''+esc(d.thumbnail)+'\')"></div>'
+          : '<div class="h-thumb empty">無縮圖</div>';
+        return '<div class="h-item" data-id="'+it.id+'">'+thumb+
+          '<div class="h-main">'+
+            '<div class="h-item-head"><div class="h-name'+(d.title?'':' empty')+'">'+esc(d.title||'未命名筆記')+'</div><span class="h-meta">'+date+edited+'　'+by+'</span></div>'+
+            '<div class="c-body">'+esc(d.body||'')+'</div>'+
+            '<div class="h-acts" style="margin-top:10px"><button class="btn sm edit">✎ 編輯</button><button class="btn sm copy">⧉ 複製</button><button class="btn sm ghost danger del">刪除</button></div>'+
+          '</div></div>';
       }).join('');
+    }
+
+    function setThumb(dataUrl){
+      currentThumb=dataUrl||null;
+      var box=$('#thumb-box');
+      if(currentThumb){
+        var existing=box.querySelector('img'); if(existing) existing.remove();
+        var img=document.createElement('img'); img.src=currentThumb;
+        box.insertBefore(img, box.querySelector('.thumb-rm'));
+        box.classList.add('has-thumb');
+      } else {
+        var img2=box.querySelector('img'); if(img2) img2.remove();
+        box.classList.remove('has-thumb');
+      }
+    }
+
+    function resetComposer(){
+      editingId=null; $('#f-title').value=''; $('#f-body').value=''; setThumb(null);
+      $('#save').textContent='＋ 儲存筆記'; $('#cancel').style.display='none'; $('#flag').textContent='';
+    }
+
+    async function pickThumb(){
+      var f=await JSTImg.pickFile(); if(!f) return;
+      try{ var url=await JSTImg.resize(f); setThumb(url); toast('已選好縮圖'); }
+      catch(e){ toast('❌ '+e.message); }
     }
 
     async function saveNote(){
       var title=$('#f-title').value.trim(), body=$('#f-body').value.trim();
       if(!title && !body){ toast('請先寫點東西'); $('#f-body').focus(); return; }
+      var data={title:title,body:body,thumbnail:currentThumb||''};
       var btn=$('#save'); btn.disabled=true;
-      try {
+      try{
         if(editingId){
-          await api('/api/items/' + editingId, { method:'PUT', body: JSON.stringify({ data:{ title:title, body:body } }) });
+          await api('/api/items/'+editingId,{method:'PUT',body:JSON.stringify({data:data})});
           toast('✓ 已更新');
-        } else {
-          await api('/api/items', { method:'POST', body: JSON.stringify({ kind:KIND, data:{ title:title, body:body } }) });
+        }else{
+          await api('/api/items',{method:'POST',body:JSON.stringify({kind:KIND,data:data})});
           toast('✓ 已存到雲端');
         }
-        resetComposer(); await reload();
-      } catch(e){ toast('❌ '+e.message); }
-      finally { btn.disabled=false; }
+        resetComposer(); reload();
+      }catch(e){ toast('❌ '+e.message); }
+      finally{ btn.disabled=false; }
     }
 
     $('#save').addEventListener('click',saveNote);
     $('#cancel').addEventListener('click',resetComposer);
     $('#search').addEventListener('input',render);
-    $('#list').addEventListener('click', async function(e){
-      var card=e.target.closest('.card'); if(!card) return;
-      var id=card.dataset.id; var it=cache.find(function(x){return x.id===id;}); if(!it) return;
-      var d = it.data || {};
+    $('#thumb-box').addEventListener('click',function(e){ if(e.target.id==='thumb-rm') return; pickThumb(); });
+    $('#thumb-rm').addEventListener('click',function(e){ e.stopPropagation(); setThumb(null); });
+
+    $('#list').addEventListener('click',async function(e){
+      var item=e.target.closest('.h-item'); if(!item) return;
+      var id=item.dataset.id; var it=cache.find(function(x){return x.id===id;}); if(!it) return;
+      var d=it.data||{};
       if(e.target.classList.contains('edit')){
-        editingId=id; $('#f-title').value=d.title||''; $('#f-body').value=d.body||'';
+        editingId=id;
+        $('#f-title').value=d.title||''; $('#f-body').value=d.body||''; setThumb(d.thumbnail||null);
         $('#save').textContent='✓ 更新筆記'; $('#cancel').style.display='inline-block'; $('#flag').textContent='編輯中…';
-        window.scrollTo({top:0,behavior:'smooth'}); $('#f-body').focus();
+        window.scrollTo({top:0,behavior:'smooth'}); $('#f-title').focus();
       } else if(e.target.classList.contains('copy')){
         navigator.clipboard.writeText((d.title?d.title+'\n\n':'')+(d.body||'')).then(function(){toast('⧉ 已複製');});
       } else if(e.target.classList.contains('del')){
-        if(!confirm('刪除這篇筆記？所有人都會看不到。')) return;
-        try { await api('/api/items/' + id, { method:'DELETE' }); if(editingId===id) resetComposer(); await reload(); toast('已刪除'); }
+        if(!confirm('刪除這篇？所有人都會看不到。')) return;
+        try{ await api('/api/items/'+id,{method:'DELETE'}); if(editingId===id) resetComposer(); reload(); toast('已刪除'); }
         catch(err){ toast('❌ '+err.message); }
       }
     });

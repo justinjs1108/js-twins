@@ -1,0 +1,47 @@
+/* ============================================================
+   全站背景：紅色賽博漸層緩漂動 + 交叉淡入淡出
+   - 7 張 WebP（32–44 KB 各）
+   - z-index: -10 鋪在最底層；任何頁面既有的 ::before vignette 還在
+   - 上面再蓋一層暗化遮罩讓文字始終清楚
+   - 尊重「減少動態」偏好 → 不動、只顯示一張
+   ============================================================ */
+#bg-slideshow {
+  position: fixed; inset: 0; z-index: -10;
+  overflow: hidden; pointer-events: none;
+  background: #000;
+}
+#bg-slideshow .slide {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 2.4s ease-in-out;
+  transform-origin: center center;
+  will-change: opacity, transform;
+}
+#bg-slideshow .slide.on {
+  opacity: 1;
+  animation: bgKenBurns 12s linear forwards;
+}
+@keyframes bgKenBurns {
+  0%   { transform: scale(1.02) translate(0%, 0%); }
+  100% { transform: scale(1.10) translate(-1.4%, -0.8%); }
+}
+
+/* 暗化遮罩：讓文字在任何紅色亮處也清楚 */
+#bg-veil {
+  position: fixed; inset: 0; z-index: -9;
+  pointer-events: none;
+  background:
+    radial-gradient(140% 110% at 50% 60%, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.66) 80%),
+    linear-gradient(180deg, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.15) 30%, rgba(0,0,0,0.55) 100%);
+}
+
+/* 配合：原本 body 上的純黑底會擋住背景，覆寫成透明 */
+body { background-color: transparent !important; }
+
+/* 尊重「減少動態」偏好：顯示第一張、不動 */
+@media (prefers-reduced-motion: reduce) {
+  #bg-slideshow .slide { transition: none; animation: none; }
+  #bg-slideshow .slide:first-child { opacity: 1; }
+}

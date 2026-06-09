@@ -7,90 +7,38 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;500;800;900&family=Hanken+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/tool.css" />
+  <link rel="stylesheet" href="/css/bg-cyber.css" />
+  <script src="/js/bg-cyber.js"></script>
   <script src="/js/guard.js"></script>
+  <script src="/js/img.js"></script>
   <style>
-    :root{
-      --bg:#000;--bg-2:#0a0a0c;--text:#f4f4f4;--text-2:#a8a8ac;--muted:#6a6a70;
-      --line:rgba(255,255,255,.14);--line-soft:rgba(255,255,255,.07);--glass:rgba(255,255,255,.04);
-      --fd:'Archivo',sans-serif;--fb:'Hanken Grotesk','PingFang TC','Noto Sans TC',system-ui,sans-serif;--fm:'JetBrains Mono',monospace;
-      --ease:cubic-bezier(.2,.7,.2,1);--pad:clamp(20px,5vw,72px);
-    }
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{background:var(--bg);color:var(--text);font-family:var(--fb);line-height:1.6;min-height:100vh;-webkit-font-smoothing:antialiased}
-    body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(60% 50% at 50% -10%,rgba(255,255,255,.05),transparent 70%)}
-    a{color:inherit}::selection{background:#fff;color:#000}
-    .wrap{max-width:1080px;margin:0 auto;padding:0 var(--pad) 100px}
-
-    header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:24px var(--pad);border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(0,0,0,.72);backdrop-filter:blur(14px);z-index:10}
-    .back{font-family:var(--fm);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--text-2);text-decoration:none;transition:color .2s}
-    .back:hover{color:#fff}
-    .h-title{font-family:var(--fm);font-size:11.5px;letter-spacing:.34em;text-transform:uppercase;color:var(--muted)}
-    .who{font-family:var(--fm);font-size:11.5px;color:var(--muted);letter-spacing:.06em}
-    .cloud{font-family:var(--fm);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);padding:5px 10px;border-radius:999px}
-    .cloud.live{color:#fff;border-color:rgba(255,255,255,.4)}
-
-    .hero{padding:48px 0 26px}
-    .hero .no{font-family:var(--fm);font-size:12px;letter-spacing:.3em;color:var(--muted)}
-    .hero h1{font-family:var(--fd);font-weight:900;font-size:clamp(34px,6vw,64px);letter-spacing:-.02em;line-height:1;margin:10px 0 8px}
-    .hero p{color:var(--text-2);max-width:560px;font-size:15px}
-
-    .tabs{display:inline-flex;gap:4px;background:var(--bg-2);border:1px solid var(--line);border-radius:999px;padding:5px;margin:8px 0 26px}
+    .tabs{display:inline-flex;gap:4px;background:rgba(0,0,0,.4);border:1px solid var(--line);border-radius:999px;padding:5px;margin-bottom:18px}
     .tab{font-family:var(--fm);font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;border:0;background:none;color:var(--text-2);padding:10px 20px;border-radius:999px;cursor:pointer;transition:all .25s var(--ease)}
     .tab.on{background:#fff;color:#000;font-weight:500}
     .tab .c{opacity:.5;margin-left:7px}
-
-    .composer{border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01));padding:18px;margin-bottom:22px}
-    .composer input,.composer textarea{width:100%;background:rgba(0,0,0,.35);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:11px 13px;font-size:14px;font-family:inherit;margin-bottom:10px}
-    .composer textarea{font-family:var(--fm);font-size:13px;line-height:1.7;resize:vertical;min-height:96px}
-    .composer input:focus,.composer textarea:focus{outline:none;border-color:rgba(255,255,255,.4)}
-    .composer .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .composer .row input{margin-bottom:0;flex:1;min-width:160px}
-    .btn{font-family:var(--fm);font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;border:1px solid var(--line);background:var(--glass);color:var(--text);border-radius:10px;padding:11px 18px;transition:all .2s}
-    .btn:hover{border-color:rgba(255,255,255,.5)}
-    .btn.primary{background:#fff;color:#000;border-color:#fff;font-weight:600}
-    .btn.primary:hover{box-shadow:0 0 22px rgba(255,255,255,.25)}
-    .btn.sm{padding:7px 12px;font-size:11.5px}
-    .btn.ghost{background:none}
-    .btn.danger:hover{border-color:#ff6b6b;color:#ff6b6b}
-
-    .toolbar{display:flex;gap:12px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
-    .search{flex:1;min-width:200px;background:rgba(0,0,0,.35);color:var(--text);border:1px solid var(--line);border-radius:999px;padding:11px 18px;font-size:14px;font-family:inherit}
-    .search:focus{outline:none;border-color:rgba(255,255,255,.4)}
-    .count{font-family:var(--fm);font-size:11.5px;letter-spacing:.1em;color:var(--muted)}
-
-    .list{display:grid;gap:14px}
-    .card{border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.01));padding:16px 18px;transition:border-color .25s,transform .25s}
-    .card:hover{border-color:rgba(255,255,255,.32);transform:translateY(-2px)}
-    .card .c-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
-    .card .c-title{font-family:var(--fd);font-weight:800;font-size:16px;letter-spacing:-.01em}
-    .card .c-title.empty{color:var(--muted);font-weight:500;font-style:italic}
-    .card .c-date{font-family:var(--fm);font-size:11px;color:var(--muted);white-space:nowrap}
-    .card .c-text{font-family:var(--fm);font-size:13px;line-height:1.75;color:var(--text-2);white-space:pre-wrap;word-break:break-word;background:rgba(0,0,0,.3);border:1px solid var(--line-soft);border-radius:10px;padding:12px 14px}
-    .card .c-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;align-items:center}
-    .chip{font-family:var(--fm);font-size:11px;letter-spacing:.06em;color:var(--text-2);border:1px solid var(--line);border-radius:999px;padding:4px 10px}
-    .author{font-family:var(--fm);font-size:10.5px;color:var(--muted);margin-left:auto;letter-spacing:.05em}
-    .card .c-actions{display:flex;gap:8px;margin-top:12px}
-    .empty-state{text-align:center;color:var(--muted);padding:60px 20px;border:1px dashed var(--line);border-radius:16px;font-size:14px}
-    .toast{position:fixed;left:50%;bottom:34px;transform:translateX(-50%) translateY(20px);background:#fff;color:#000;font-family:var(--fm);font-size:12.5px;letter-spacing:.08em;padding:11px 20px;border-radius:999px;opacity:0;pointer-events:none;transition:all .3s var(--ease);z-index:50}
-    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-    @media(max-width:560px){.hero h1{font-size:34px}}
+    .c-text{font-family:var(--fm);font-size:13px;line-height:1.75;color:var(--text-2);white-space:pre-wrap;word-break:break-word;background:rgba(0,0,0,.32);border:1px solid var(--line-soft);border-radius:8px;padding:10px 12px;margin-top:6px;max-height:140px;overflow:auto}
+    .chips-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center}
+    .chip{font-family:var(--fm);font-size:11px;color:var(--text-2);border:1px solid var(--line);border-radius:999px;padding:3px 9px}
+    .author{font-family:var(--fm);font-size:10.5px;color:var(--muted);margin-left:auto}
+    .editing-flag{font-family:var(--fm);font-size:11.5px;letter-spacing:.1em;color:var(--muted);min-width:0;flex:1}
   </style>
 </head>
 <body>
-  <header>
+  <header class="nav">
     <a class="back" href="/">← JS_TWINS</a>
     <span class="h-title">02 · Prompt Vault</span>
-    <div style="display:flex;align-items:center;gap:12px">
+    <div class="h-right">
       <span class="who" id="who"></span>
       <span class="cloud" id="cloud">● 連線中…</span>
     </div>
   </header>
 
-  <div class="wrap">
+  <main class="wrap">
     <div class="hero">
       <span class="no">02 / PROMPT VAULT</span>
       <h1>Prompt 整理</h1>
-      <p>把你的 Midjourney 與 Nano Banana 提示詞收進來，分類、搜尋、一鍵複製。<b style="color:#fff">所有人共用、雲端永久保存。</b></p>
+      <p>把你的 Midjourney 與 Nano Banana 提示詞收進來，<b style="color:#fff">配上一張縮圖</b>，掃一眼就知道是什麼畫面。所有人共用、雲端永久。</p>
     </div>
 
     <div class="tabs" id="tabs">
@@ -98,122 +46,187 @@
       <button class="tab" data-tab="nb">Nano Banana<span class="c" id="c-nb">0</span></button>
     </div>
 
-    <div class="composer">
-      <input id="f-title" type="text" placeholder="標題（可留空，例如：賽博龐克街景）" />
-      <textarea id="f-text" placeholder="把提示詞貼在這裡…"></textarea>
-      <div class="row">
-        <input id="f-tags" type="text" placeholder="標籤（用逗號分隔，例如：cyberpunk, night, neon）" />
-        <button class="btn primary" id="add">＋ 儲存提示詞</button>
+    <section class="panel">
+      <label>名稱 / 標題</label>
+      <input id="f-title" type="text" placeholder="例如：賽博龐克下雨夜街景" />
+      <label class="block">提示詞</label>
+      <textarea id="f-text" rows="5" placeholder="把提示詞貼在這裡…"></textarea>
+      <label class="block">標籤（用逗號分隔）</label>
+      <input id="f-tags" type="text" placeholder="例如：cyberpunk, night, neon" />
+
+      <div class="thumb-row">
+        <div class="thumb-box" id="thumb-box" title="點擊上傳縮圖（自動壓縮到約 50KB）">
+          <span class="ph">📷 點擊<br>上傳縮圖</span>
+          <button type="button" class="thumb-rm" id="thumb-rm" title="移除縮圖">✕</button>
+        </div>
+        <div class="thumb-tip">
+          建議放一張預覽圖（截圖或產出範例），方便你和朋友掃一眼就知道是什麼。會自動壓縮、不會占太多空間。
+        </div>
       </div>
+
+      <div class="actions">
+        <span class="editing-flag" id="flag"></span>
+        <button id="cancel" class="btn ghost sm" style="display:none">取消編輯</button>
+        <button id="save" class="btn primary">＋ 儲存提示詞</button>
+      </div>
+      <span id="stat" class="stat" style="display:block;margin-top:8px"></span>
+    </section>
+
+    <div class="actions" style="margin-bottom:14px">
+      <input id="search" class="search" style="flex:1;background:rgba(0,0,0,.35);color:var(--text);border:1px solid var(--line);border-radius:999px;padding:11px 18px;font-size:14px;font-family:inherit" placeholder="🔍 搜尋名稱、提示詞、標籤…" />
+      <span id="count" class="stat" style="flex:0 0 auto"></span>
     </div>
 
-    <div class="toolbar">
-      <input class="search" id="search" type="text" placeholder="🔍 搜尋提示詞、標題、標籤…" />
-      <span class="count" id="count"></span>
-    </div>
-
-    <div class="list" id="list"></div>
-  </div>
+    <section class="history" style="margin-top:0">
+      <div class="h-list" id="list"></div>
+    </section>
+  </main>
 
   <div class="toast" id="toast"></div>
 
   <script>
   (function(){
-    var tab = 'mj';
-    var KIND = { mj: 'prompt-mj', nb: 'prompt-nb' };
-    var cache = { mj: null, nb: null };
-    var $ = function(s){ return document.querySelector(s); };
-    var me = null;
+    var $=function(s){return document.querySelector(s);};
+    var tab='mj';
+    var KIND={mj:'prompt-mj',nb:'prompt-nb'};
+    var cache={mj:null,nb:null};
+    var editingId=null;
+    var currentThumb=null; // dataURL or null
 
-    document.addEventListener('jstwins-auth', function(e){
-      me = e.detail;
-      $('#who').textContent = '👤 ' + me.user;
-      $('#cloud').textContent = '● 雲端已連線';
-      $('#cloud').classList.add('live');
+    function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+    function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('show');},1800);}
+
+    document.addEventListener('jstwins-auth',function(e){
+      $('#who').textContent='👤 '+e.detail.user;
+      $('#cloud').textContent='● 雲端已連線';$('#cloud').classList.add('live');
       reload('mj'); reload('nb');
     });
 
-    function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-    function toast(m){ var t=$('#toast'); t.textContent=m; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(function(){t.classList.remove('show');},1700); }
-
-    async function api(path, opts){
-      opts = opts || {};
-      opts.credentials = 'same-origin';
-      opts.headers = Object.assign({'Content-Type':'application/json'}, opts.headers || {});
-      var r = await fetch(path, opts);
-      var d = await r.json();
-      if (!r.ok) throw new Error(d.error || ('HTTP '+r.status));
+    async function api(path,opts){
+      opts=opts||{}; opts.credentials='same-origin';
+      opts.headers=Object.assign({'Content-Type':'application/json'},opts.headers||{});
+      var r=await fetch(path,opts); var d=await r.json();
+      if(!r.ok) throw new Error(d.error||'HTTP '+r.status);
       return d;
     }
 
     async function reload(which){
-      try {
-        var d = await api('/api/items?kind=' + KIND[which]);
-        cache[which] = d.items || [];
-        $('#c-' + which).textContent = cache[which].length;
-        if (which === tab) render();
-      } catch(e){ if(which === tab) $('#list').innerHTML = '<div class="empty-state">載入失敗：'+esc(e.message)+'</div>'; }
+      try{
+        var d=await api('/api/items?kind='+KIND[which]);
+        cache[which]=d.items||[];
+        $('#c-'+which).textContent=cache[which].length;
+        if(which===tab) render();
+      }catch(e){ if(which===tab) $('#list').innerHTML='<div class="h-empty">載入失敗：'+esc(e.message)+'</div>'; }
     }
 
     function render(){
-      var q = $('#search').value.trim().toLowerCase();
-      var arr = cache[tab] || [];
-      var items = arr.filter(function(it){
-        var d = it.data || {};
+      var q=$('#search').value.trim().toLowerCase();
+      var arr=cache[tab]||[];
+      var items=arr.filter(function(it){
+        var d=it.data||{};
         if(!q) return true;
-        return ((d.title||'') + ' ' + (d.text||'') + ' ' + ((d.tags||[]).join(' '))).toLowerCase().indexOf(q) >= 0;
+        return ((d.title||'')+' '+(d.text||'')+' '+((d.tags||[]).join(' '))).toLowerCase().indexOf(q)>=0;
       });
-      $('#count').textContent = items.length + ' 筆';
-      var box = $('#list');
-      if(!items.length){
-        box.innerHTML = '<div class="empty-state">'+(q?'找不到符合的提示詞。':'這個分類還沒有提示詞，從上面新增第一筆吧。')+'</div>';
-        return;
-      }
-      box.innerHTML = items.map(function(it){
-        var d = it.data || {};
-        var date = new Date(it.updated_at || it.created_at).toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
-        var tags = (d.tags||[]).map(function(g){return '<span class="chip">'+esc(g)+'</span>';}).join('');
-        var by = it.created_by ? '<span class="author">— '+esc(it.created_by)+'</span>' : '';
-        return '<div class="card" data-id="'+it.id+'">'+
-          '<div class="c-head"><span class="c-title'+(d.title?'':' empty')+'">'+esc(d.title||'未命名')+'</span><span class="c-date">'+date+'</span></div>'+
-          '<div class="c-text">'+esc(d.text||'')+'</div>'+
-          (tags||by?'<div class="c-tags">'+tags+by+'</div>':'')+
-          '<div class="c-actions"><button class="btn sm copy">⧉ 複製</button><button class="btn sm ghost danger del">刪除</button></div>'+
-        '</div>';
+      $('#count').textContent=items.length+' 筆';
+      var box=$('#list');
+      if(!items.length){ box.innerHTML='<div class="h-empty">'+(q?'找不到符合的提示詞。':'這個分類還沒有提示詞。')+'</div>'; return; }
+      box.innerHTML=items.map(function(it){
+        var d=it.data||{};
+        var date=new Date(it.updated_at||it.created_at).toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+        var tags=(d.tags||[]).map(function(g){return '<span class="chip">'+esc(g)+'</span>';}).join('');
+        var by=it.created_by?'<span class="author">— '+esc(it.created_by)+'</span>':'';
+        var thumb=d.thumbnail
+          ? '<div class="h-thumb" style="background-image:url(\''+esc(d.thumbnail)+'\')"></div>'
+          : '<div class="h-thumb empty">無縮圖</div>';
+        return '<div class="h-item" data-id="'+it.id+'">'+thumb+
+          '<div class="h-main">'+
+            '<div class="h-item-head"><div class="h-name'+(d.title?'':' empty')+'">'+esc(d.title||'未命名')+'</div><span class="h-meta">'+date+'</span></div>'+
+            '<div class="c-text">'+esc(d.text||'')+'</div>'+
+            (tags||by?'<div class="chips-row">'+tags+by+'</div>':'')+
+            '<div class="h-acts" style="margin-top:10px"><button class="btn sm edit">✎ 編輯</button><button class="btn sm copy">⧉ 複製</button><button class="btn sm ghost danger del">刪除</button></div>'+
+          '</div></div>';
       }).join('');
     }
 
-    async function add(){
-      var text = $('#f-text').value.trim();
-      if(!text){ toast('請先輸入提示詞'); $('#f-text').focus(); return; }
-      var tags = $('#f-tags').value.split(',').map(function(s){return s.trim();}).filter(Boolean);
-      var btn = $('#add'); btn.disabled = true;
-      try {
-        await api('/api/items', { method:'POST', body: JSON.stringify({ kind: KIND[tab], data: { title: $('#f-title').value.trim(), text: text, tags: tags } }) });
-        $('#f-title').value=''; $('#f-text').value=''; $('#f-tags').value='';
-        await reload(tab); toast('✓ 已存到雲端 · ' + (tab==='mj'?'Midjourney':'Nano Banana'));
-      } catch(e){ toast('❌ ' + e.message); }
-      finally { btn.disabled = false; }
+    function setThumb(dataUrl){
+      currentThumb=dataUrl||null;
+      var box=$('#thumb-box');
+      if(currentThumb){
+        var existing=box.querySelector('img');
+        if(existing) existing.remove();
+        var img=document.createElement('img'); img.src=currentThumb;
+        box.insertBefore(img, box.querySelector('.thumb-rm'));
+        box.classList.add('has-thumb');
+      } else {
+        var img2=box.querySelector('img'); if(img2) img2.remove();
+        box.classList.remove('has-thumb');
+      }
     }
 
-    document.getElementById('tabs').addEventListener('click', function(e){
-      var b = e.target.closest('.tab'); if(!b) return;
-      tab = b.dataset.tab;
-      document.querySelectorAll('.tab').forEach(function(x){ x.classList.toggle('on', x===b); });
-      render();
+    function resetComposer(){
+      editingId=null; $('#f-title').value=''; $('#f-text').value=''; $('#f-tags').value='';
+      setThumb(null);
+      $('#save').textContent='＋ 儲存提示詞';
+      $('#cancel').style.display='none';
+      $('#flag').textContent='';
+    }
+
+    async function pickThumb(){
+      var f=await JSTImg.pickFile(); if(!f) return;
+      try{ var url=await JSTImg.resize(f); setThumb(url); toast('已選好縮圖'); }
+      catch(e){ toast('❌ '+e.message); }
+    }
+
+    async function saveItem(){
+      var title=$('#f-title').value.trim();
+      var text=$('#f-text').value.trim();
+      if(!text){ toast('請貼提示詞'); $('#f-text').focus(); return; }
+      var tags=$('#f-tags').value.split(',').map(function(s){return s.trim();}).filter(Boolean);
+      var data={title:title,text:text,tags:tags,thumbnail:currentThumb||''};
+      var btn=$('#save'); btn.disabled=true;
+      try{
+        if(editingId){
+          await api('/api/items/'+editingId,{method:'PUT',body:JSON.stringify({data:data})});
+          toast('✓ 已更新');
+        }else{
+          await api('/api/items',{method:'POST',body:JSON.stringify({kind:KIND[tab],data:data})});
+          toast('✓ 已存到雲端 · '+(tab==='mj'?'Midjourney':'Nano Banana'));
+        }
+        resetComposer(); reload(tab);
+      }catch(e){ toast('❌ '+e.message); }
+      finally{ btn.disabled=false; }
+    }
+
+    document.getElementById('tabs').addEventListener('click',function(e){
+      var b=e.target.closest('.tab'); if(!b) return;
+      tab=b.dataset.tab;
+      document.querySelectorAll('.tab').forEach(function(x){x.classList.toggle('on',x===b);});
+      resetComposer(); render();
     });
-    $('#add').addEventListener('click', add);
-    $('#search').addEventListener('input', render);
-    $('#list').addEventListener('click', async function(e){
-      var card = e.target.closest('.card'); if(!card) return;
-      var id = card.dataset.id;
-      if(e.target.classList.contains('copy')){
-        var it = (cache[tab]||[]).find(function(x){return x.id===id;});
-        if(it && it.data) navigator.clipboard.writeText(it.data.text || '').then(function(){ toast('⧉ 已複製到剪貼簿'); });
+    $('#save').addEventListener('click',saveItem);
+    $('#cancel').addEventListener('click',resetComposer);
+    $('#search').addEventListener('input',render);
+    $('#thumb-box').addEventListener('click',function(e){ if(e.target.id==='thumb-rm') return; pickThumb(); });
+    $('#thumb-rm').addEventListener('click',function(e){ e.stopPropagation(); setThumb(null); });
+
+    $('#list').addEventListener('click',async function(e){
+      var item=e.target.closest('.h-item'); if(!item) return;
+      var id=item.dataset.id; var it=(cache[tab]||[]).find(function(x){return x.id===id;}); if(!it) return;
+      var d=it.data||{};
+      if(e.target.classList.contains('edit')){
+        editingId=id;
+        $('#f-title').value=d.title||''; $('#f-text').value=d.text||''; $('#f-tags').value=(d.tags||[]).join(', ');
+        setThumb(d.thumbnail||null);
+        $('#save').textContent='✓ 更新提示詞';
+        $('#cancel').style.display='inline-block';
+        $('#flag').textContent='編輯中…';
+        window.scrollTo({top:0,behavior:'smooth'}); $('#f-title').focus();
+      } else if(e.target.classList.contains('copy')){
+        navigator.clipboard.writeText(d.text||'').then(function(){toast('⧉ 已複製提示詞');});
       } else if(e.target.classList.contains('del')){
-        if(!confirm('刪除這筆提示詞？所有人都會看不到。')) return;
-        try { await api('/api/items/' + id, { method:'DELETE' }); await reload(tab); toast('已刪除'); }
-        catch(err){ toast('❌ ' + err.message); }
+        if(!confirm('刪除這筆？所有人都會看不到。')) return;
+        try{ await api('/api/items/'+id,{method:'DELETE'}); if(editingId===id) resetComposer(); reload(tab); toast('已刪除'); }
+        catch(err){ toast('❌ '+err.message); }
       }
     });
   })();
