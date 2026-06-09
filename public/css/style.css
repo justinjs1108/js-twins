@@ -526,6 +526,71 @@ a { color: inherit; }
   .tools-gallery .gh-sub { grid-column: 1 / -1; grid-row: auto; text-align: left; }
 }
 
+/* ╔══════════════════════════════════════════════════════════════╗
+   TENET 風光柱字體 — 每個字母穿一道垂直光柱
+   ╚══════════════════════════════════════════════════════════════╝ */
+.hero-title-tenet {
+  display: inline-flex; align-items: baseline; justify-content: center;
+  font-family: var(--font-display); font-weight: 900;
+  font-size: clamp(74px, 15vw, 230px);
+  letter-spacing: -0.025em; line-height: 0.9;
+  margin: 0; position: relative; white-space: nowrap;
+}
+.hero-title-tenet .tl-gap { width: 0.42em; display: inline-block; }
+
+.hero-title-tenet .tl {
+  position: relative; display: inline-block;
+  /* 金屬白漸層：上亮下灰 */
+  background: linear-gradient(180deg, #ffffff 0%, #ffffff 50%, #cfcfd4 92%, #a5a5ac 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+  text-shadow: 0 0 1px rgba(255,255,255,0.05);
+}
+
+/* 每個字母背後一道垂直光柱（從天到地）*/
+.hero-title-tenet .tl::before {
+  content: ''; position: absolute;
+  left: 50%; top: -380%; bottom: -380%;
+  width: 85%; transform: translateX(-50%);
+  background: linear-gradient(180deg,
+    transparent 4%,
+    rgba(255, 255, 255, 0.03) 22%,
+    rgba(255, 255, 255, 0.14) 42%,
+    rgba(255, 255, 255, 0.28) 50%,
+    rgba(255, 255, 255, 0.14) 58%,
+    rgba(255, 255, 255, 0.03) 78%,
+    transparent 96%);
+  filter: blur(16px);
+  z-index: -1; pointer-events: none;
+  animation: tenetBeam 5s ease-in-out infinite;
+}
+/* 每根光柱用不同節奏，產生「呼吸交錯」感 */
+.hero-title-tenet .tl:nth-child(1)::before { animation-delay: 0s; }
+.hero-title-tenet .tl:nth-child(2)::before { animation-delay: -0.6s; }
+.hero-title-tenet .tl:nth-child(4)::before { animation-delay: -1.2s; }
+.hero-title-tenet .tl:nth-child(5)::before { animation-delay: -1.8s; }
+.hero-title-tenet .tl:nth-child(6)::before { animation-delay: -2.4s; }
+.hero-title-tenet .tl:nth-child(7)::before { animation-delay: -3.0s; }
+.hero-title-tenet .tl:nth-child(8)::before { animation-delay: -3.6s; }
+
+@keyframes tenetBeam {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+/* 同時讓中央那道水平光束在 TENET 版稍微弱一點，避免畫面太雜 */
+.hero-tenet .cinema-beam { opacity: 0.45; }
+
+/* 單顆置中 CTA — 比雙 CTA 大一點 */
+.cinema-ctas.single { margin-top: 56px; }
+.cinema-ctas.single .cta-pill.primary {
+  padding: 15px 32px; font-size: 13.5px;
+}
+
+/* 工具列「直接進」版本：去掉 gallery-head 的大標，但保留分段空間 */
+.tools-naked { padding-top: clamp(40px, 7vh, 90px); }
+
+
 /* ───────── 進場動畫 ───────── */
 @keyframes reveal { from { opacity: 0; transform: translateY(28px); filter: blur(8px); } to { opacity: 1; transform: none; filter: none; } }
 .reveal { opacity: 0; animation: reveal 0.95s var(--ease) forwards; animation-delay: var(--d, 0s); }
