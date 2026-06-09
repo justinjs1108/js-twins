@@ -195,7 +195,7 @@
     var tab='mj';
     var KIND={mj:'prompt-mj',nb:'prompt-nb'};
     var cache={mj:[],nb:[]};
-    var folders=[];          // [{id, label}]
+    var folders=[];          // [{id, label, scope}]  scope: 'mj' or 'nb'
     var editingId=null;
     var currentImgs=[];      // base64 array for composer
     var view='root';         // 'root' or 'folder'
@@ -226,11 +226,33 @@
     async function reloadAll(){
       try{
         var fRes = await api('/api/items?kind=folder');
-        folders = (fRes.items||[]).map(function(it){ return { id: it.id, label: (it.data&&it.data.label)||'未命名資料夾' }; });
+        var raw = fRes.items||[];
         var mj = await api('/api/items?kind='+KIND.mj);
         var nb = await api('/api/items?kind='+KIND.nb);
         cache.mj = mj.items||[];
         cache.nb = nb.items||[];
+
+        // 自動把舊的資料夾（沒 scope 的）依使用狀況遷移到 MJ 或 NB
+        var legacy = raw.filter(function(it){ return !(it.data && it.data.scope); });
+        if (legacy.length){
+          for (var i=0; i<legacy.length; i++){
+            var fid = legacy[i].id;
+            var mjN = cache.mj.filter(function(p){ return p.data && p.data.folder === fid; }).length;
+            var nbN = cache.nb.filter(function(p){ return p.data && p.data.folder === fid; }).length;
+            var scope = (nbN > mjN) ? 'nb' : 'mj';
+            var newData = Object.assign({}, legacy[i].data||{}, { scope: scope });
+            try {
+              await api('/api/items/'+fid,{method:'PUT',body:JSON.stringify({data:newData})});
+              legacy[i].data = newData;
+            } catch(e){}
+          }
+        }
+
+        folders = raw.map(function(it){ return {
+          id: it.id,
+          label: (it.data&&it.data.label)||'未命名資料夾',
+          scope: (it.data&&it.data.scope)||'mj'
+        }; });
         $('#c-mj').textContent = cache.mj.length;
         $('#c-nb').textContent = cache.nb.length;
         renderFolderSelect();
@@ -239,6 +261,11 @@
       }catch(e){
         $('#list').innerHTML='<div class="h-empty" style="grid-column:1/-1">載入失敗：'+esc(e.message)+'</div>';
       }
+    }
+
+    // 只回傳目前分頁（MJ 或 NB）的資料夾
+    function currentFolders(){
+      return folders.filter(function(f){ return f.scope === tab; });
     }
 
     function getImages(d){
@@ -265,7 +292,7 @@
     function renderFolderSelect(){
       var sel = $('#f-folder');
       sel.innerHTML = '<option value="">未分類</option>' +
-        folders.map(function(f){ return '<option value="'+esc(f.id)+'">'+esc(f.label)+'</option>'; }).join('');
+        currentFolders().map(function(f){ return '<option value="'+esc(f.id)+'">'+esc(f.label)+'</option>'; }).join('');
     }
 
     function folderLabel(id){
@@ -326,13 +353,13 @@
       if (view==='root'){
         // 列出所有資料夾：user folders 在前 → 未分類 → ＋ 新增
         var counts = { '__none__': 0 };
-        folders.forEach(function(f){ counts[f.id]=0; });
+        currentFolders().forEach(function(f){ counts[f.id]=0; });
         (cache[tab]||[]).forEach(function(it){
           var fid = (it.data&&it.data.folder) || '__none__';
           counts[fid] = (counts[fid]||0) + 1;
         });
 
-        var userList = folders.slice().sort(function(a,b){ return (a.label||'').localeCompare(b.label||''); });
+        var userList = currentFolders().slice().sort(function(a,b){ return (a.label||'').localeCompare(b.label||''); });
 
         var html = '';
         userList.forEach(function(f){
@@ -480,7 +507,8 @@
         span.textContent = save ? (val || f.label) : f.label;
         wrap.replaceChild(span, inp);
         if (save && val && val !== f.label){
-          api('/api/items/'+fid,{method:'PUT',body:JSON.stringify({data:{label:val}})})
+          // 保留原本 scope，只更新 label
+          api('/api/items/'+fid,{method:'PUT',body:JSON.stringify({data:{label:val, scope:f.scope}})})
             .then(function(){ toast('✓ 已改名'); reloadAll(); })
             .catch(function(e){ toast('❌ '+e.message); reloadAll(); });
         }
@@ -565,8 +593,8 @@
           var name = (v.label||'').trim();
           if (!name) { toast('請輸入名稱'); return false; }
           try{
-            await api('/api/items',{method:'POST',body:JSON.stringify({kind:'folder',data:{label:name}})});
-            toast('✓ 已建立資料夾「'+name+'」');
+            await api('/api/items',{method:'POST',body:JSON.stringify({kind:'folder',data:{label:name, scope: tab}})});
+            toast('✓ 已建立資料夾「'+name+'」（'+(tab==='mj'?'Midjourney':'Nano Banana')+' 專用）');
             await reloadAll();
             return true;
           }catch(e){ toast('❌ '+e.message); return false; }
@@ -575,12 +603,13 @@
     }
     async function deleteFolder(id){
       var f = folders.find(function(x){return x.id===id;}); if(!f) return;
-      var n = (cache.mj.concat(cache.nb)).filter(function(it){ return (it.data&&it.data.folder)===id; }).length;
+      var ownTab = f.scope || 'mj';
+      var n = (cache[ownTab]||[]).filter(function(it){ return (it.data&&it.data.folder)===id; }).length;
       var msg = '刪除資料夾「'+f.label+'」？\n' + (n? '裡面的 '+n+' 筆提示詞會變成「未分類」（不會被刪掉）。' : '裡面是空的。');
       if (!confirm(msg)) return;
       try{
         if (n) {
-          var promises = (cache.mj.concat(cache.nb))
+          var promises = (cache[ownTab]||[])
             .filter(function(it){ return (it.data&&it.data.folder)===id; })
             .map(function(it){
               var d = Object.assign({}, it.data, { folder: '' });
@@ -619,7 +648,7 @@
         html += '<label>'+esc(f.label)+'</label>';
         if (f.type==='select') {
           html += '<select data-key="'+f.key+'"><option value="">未分類</option>' +
-            folders.map(function(ff){ return '<option value="'+esc(ff.id)+'"'+(ff.id===f.value?' selected':'')+'>'+esc(ff.label)+'</option>'; }).join('') + '</select>';
+            currentFolders().map(function(ff){ return '<option value="'+esc(ff.id)+'"'+(ff.id===f.value?' selected':'')+'>'+esc(ff.label)+'</option>'; }).join('') + '</select>';
         } else {
           html += '<input type="text" data-key="'+f.key+'" value="'+esc(f.value||'')+'" placeholder="'+esc(f.placeholder||'')+'" />';
         }
