@@ -273,7 +273,7 @@
         var k = m.prompt.id + '|' + m.param + '|' + m.value;
         if (seen[k]) return; seen[k]=true; uniq.push(m);
       });
-      box.style.display='';
+      box.style.display='block';
       box.innerHTML =
         '<div class="dup-head">⚠️ 這個提示詞裡有 <b>' + uniq.length + ' 個參數</b>之前已經記錄過。仍可儲存，但建議先確認是否重複：</div>' +
         '<div class="dup-list">' + uniq.map(function(m){
