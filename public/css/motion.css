@@ -1,0 +1,96 @@
+/* ============================================================
+   全站高級微動效 Motion System — 克制、精緻、不誇張
+   原則：450-650ms、cubic-bezier(.2,.7,.2,1)、位移 ≤ 16px、
+   交錯 ≤ 60ms、尊重 prefers-reduced-motion。
+   進場用 JS 加 class（無 JS 時內容照常顯示，不會被藏住）。
+   ============================================================ */
+
+/* ── 進場：JS 先加 .m-pre（藏），下一幀加 .m-show（浮現）── */
+.m-pre {
+  opacity: 0;
+  transform: translateY(14px);
+  filter: blur(5px);
+}
+.m-show {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  transition:
+    opacity .6s cubic-bezier(.2,.7,.2,1),
+    transform .6s cubic-bezier(.2,.7,.2,1),
+    filter .5s cubic-bezier(.2,.7,.2,1);
+  transition-delay: var(--m-d, 0s);
+}
+
+/* ── 按鈕：懸停微浮 + 按下回饋（全站統一）── */
+.btn, .cta-pill, .tab, .iconbtn, .crumb-back, .logout, .folder-add, .nav-enter {
+  transition:
+    transform .25s cubic-bezier(.2,.7,.2,1),
+    box-shadow .3s cubic-bezier(.2,.7,.2,1),
+    border-color .2s ease,
+    background .25s ease,
+    color .2s ease;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:active, .cta-pill:active, .tab:active, .crumb-back:active { transform: translateY(0) scale(.97); }
+.btn.primary:hover { box-shadow: 0 0 24px rgba(255,255,255,.3), 0 6px 18px rgba(0,0,0,.4); }
+
+/* ── 輸入框：聚焦輝光 ── */
+input, select, textarea {
+  transition: border-color .25s ease, box-shadow .3s ease, background .25s ease;
+}
+input:focus, select:focus, textarea:focus {
+  box-shadow: 0 0 0 3px rgba(255,255,255,.06), 0 0 18px rgba(255,255,255,.05);
+}
+
+/* ── 卡片：統一懸停手感（各頁已有的保留、這裡補陰影細節）── */
+.card-v, .card-folder, .h-item, .varcard, .script-item {
+  transition:
+    transform .35s cubic-bezier(.2,.7,.2,1),
+    box-shadow .4s cubic-bezier(.2,.7,.2,1),
+    border-color .25s ease,
+    background .3s ease;
+}
+.h-item:hover, .varcard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(0,0,0,.45);
+}
+
+/* ── 縮圖：懸停輕微提亮 ── */
+.h-thumb, .cv-thumb, .fd-thumb {
+  transition: filter .35s ease, opacity .35s ease;
+}
+.card-v:hover .cv-thumb, .h-item:hover .h-thumb, .card-folder:hover .fd-thumb {
+  filter: brightness(1.08);
+}
+
+/* ── Modal：彈入 ── */
+.modal-box {
+  animation: mPop .32s cubic-bezier(.2,.7,.2,1);
+}
+@keyframes mPop {
+  from { opacity: 0; transform: scale(.96) translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── 分頁切換鈕：active 狀態的滑順感 ── */
+.tab { position: relative; }
+.tab.on { transition: background .3s ease, color .3s ease; }
+
+/* ── 連結 hover 底線（導覽）── */
+.back {
+  position: relative;
+}
+.back::after {
+  content: ''; position: absolute; left: 0; right: 100%; bottom: -3px; height: 1px;
+  background: #fff; transition: right .3s cubic-bezier(.2,.7,.2,1);
+}
+.back:hover::after { right: 0; }
+
+/* ── 尊重減少動態偏好：全部立即顯示、不動 ── */
+@media (prefers-reduced-motion: reduce) {
+  .m-pre { opacity: 1 !important; transform: none !important; filter: none !important; }
+  .m-show { transition: none !important; }
+  .btn, .cta-pill, .tab, .card-v, .card-folder, .h-item, .varcard { transition: none !important; }
+  .modal-box { animation: none !important; }
+}
