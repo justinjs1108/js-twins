@@ -117,6 +117,24 @@
     /* 卡片被導引時短暫高亮 */
     .card-v.highlight,.card-folder.highlight{box-shadow:0 0 0 2px #ffd96b,0 0 30px rgba(255,217,107,.4)!important;border-color:#ffd96b!important}
 
+    /* ── 專案列（小橫向 chips，最上方）── */
+    .project-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 18px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.02)}
+    .project-bar .pb-label{font-family:var(--fm);font-size:10.5px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-right:4px}
+    .pchip{font-family:var(--fm);font-size:11.5px;letter-spacing:.04em;padding:7px 13px;border-radius:999px;background:var(--glass);border:1px solid var(--line);color:var(--text-2);cursor:pointer;transition:all .18s;display:inline-flex;align-items:center;gap:7px;user-select:none}
+    .pchip:hover{color:#fff;border-color:rgba(255,255,255,.4)}
+    .pchip.on{background:#fff;color:#000;border-color:#fff;font-weight:500}
+    .pchip .cnt{opacity:.55;font-size:10px}
+    .pchip .px{margin-left:2px;opacity:.5;font-size:11px;cursor:pointer}
+    .pchip .px:hover{opacity:1;color:#ff6b6b}
+    .pchip.fav-chip{border-color:rgba(255,120,150,.4)}
+    .pchip-add{font-family:var(--fm);font-size:11px;background:none;border:1px dashed var(--line);color:var(--muted);padding:7px 13px;border-radius:999px;cursor:pointer;transition:all .18s}
+    .pchip-add:hover{color:#fff;border-color:rgba(255,255,255,.4)}
+
+    /* ── 愛心（縮圖左上）── */
+    .fav-btn{position:absolute;top:8px;left:8px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.65);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:14px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:2}
+    .fav-btn:hover{transform:scale(1.12);border-color:#fff}
+    .fav-btn.on{color:#ff5d7e;border-color:rgba(255,93,126,.6);background:rgba(40,0,10,.72)}
+
     /* ── Modal ── */
     .modal-bg{position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);display:grid;place-items:center;padding:20px;animation:fadeIn .2s ease}
     @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -151,6 +169,9 @@
       <button class="tab on" data-tab="mj">Midjourney<span class="c" id="c-mj">0</span></button>
       <button class="tab" data-tab="nb">Nano Banana<span class="c" id="c-nb">0</span></button>
     </div>
+
+    <!-- 專案列（MJ 專用）：❤️ 常用 + 專案 chips -->
+    <div class="project-bar" id="project-bar" style="display:none"></div>
 
     <!-- Composer -->
     <section class="panel">
@@ -219,10 +240,12 @@
     var folders=[];          // [{id, label, scope}]  scope: 'mj' or 'nb'
     var editingId=null;
     var currentImgs=[];      // base64 array for composer
-    var view='root';         // 'root' or 'folder'
+    var view='root';         // 'root' / 'folder' / 'project' / 'fav'
     var viewFolderId=null;   // folder id or '__none__' (未分類)
+    var viewProjectId=null;  // project id（view==='project' 時）
     var sortKey='new';
     var folderPrev={};       // {folderId: previewIndex}
+    var projects=[];         // [{id,label}] 專案（MJ 專用）
 
     var FOLDER_SVG_SMALL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>';
     var FOLDER_SVG_BIG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/><path d="M3 9.5h18"/></svg>';
@@ -329,6 +352,8 @@
       try{
         var fRes = await api('/api/items?kind=folder');
         var raw = fRes.items||[];
+        var pRes = await api('/api/items?kind=project');
+        projects = (pRes.items||[]).map(function(it){ return { id: it.id, label: (it.data&&it.data.label)||'未命名專案' }; });
         var mj = await api('/api/items?kind='+KIND.mj);
         var nb = await api('/api/items?kind='+KIND.nb);
         cache.mj = mj.items||[];
@@ -358,11 +383,121 @@
         $('#c-mj').textContent = cache.mj.length;
         $('#c-nb').textContent = cache.nb.length;
         renderFolderSelect();
+        renderProjectBar();
         renderCrumb();
         render();
       }catch(e){
         $('#list').innerHTML='<div class="h-empty" style="grid-column:1/-1">載入失敗：'+esc(e.message)+'</div>';
       }
+    }
+
+    // ── 專案列 ──
+    function projectCount(pid){
+      return (cache.mj||[]).filter(function(it){ return ((it.data&&it.data.projects)||[]).indexOf(pid)>=0; }).length;
+    }
+    function favCount(){
+      return (cache.mj||[]).filter(function(it){ return it.data && it.data.fav; }).length;
+    }
+    function renderProjectBar(){
+      var bar = $('#project-bar');
+      if (tab !== 'mj'){ bar.style.display='none'; return; }
+      bar.style.display='';
+      var html = '<span class="pb-label">專案</span>';
+      html += '<button class="pchip fav-chip'+(view==='fav'?' on':'')+'" data-p="__fav__">❤️ 常用<span class="cnt">'+favCount()+'</span></button>';
+      projects.forEach(function(p){
+        html += '<button class="pchip'+(view==='project'&&viewProjectId===p.id?' on':'')+'" data-p="'+p.id+'">'+esc(p.label)+'<span class="cnt">'+projectCount(p.id)+'</span><span class="px" data-delp="'+p.id+'" title="刪除專案">✕</span></button>';
+      });
+      html += '<button class="pchip-add" id="proj-add">＋ 新增專案</button>';
+      bar.innerHTML = html;
+      bar.querySelectorAll('.pchip').forEach(function(c){
+        c.addEventListener('click', function(e){
+          if (e.target.dataset.delp){ e.stopPropagation(); deleteProject(e.target.dataset.delp); return; }
+          var pid = c.dataset.p;
+          if (pid === '__fav__'){
+            if (view==='fav'){ goRoot(); } else { view='fav'; viewProjectId=null; renderProjectBar(); renderCrumb(); render(); }
+          } else {
+            if (view==='project' && viewProjectId===pid){ goRoot(); }
+            else { view='project'; viewProjectId=pid; renderProjectBar(); renderCrumb(); render(); }
+          }
+        });
+      });
+      var add = $('#proj-add');
+      if (add) add.addEventListener('click', createProject);
+    }
+    async function createProject(){
+      openModal({
+        title:'新增專案',
+        fields:[{key:'label', label:'專案名稱', placeholder:'例如：鳥居'}],
+        okLabel:'建立',
+        onOk: async function(v){
+          var name=(v.label||'').trim();
+          if(!name){ toast('請輸入名稱'); return false; }
+          try{
+            await api('/api/items',{method:'POST',body:JSON.stringify({kind:'project',data:{label:name, scope:'mj'}})});
+            toast('✓ 已建立專案「'+name+'」');
+            await reloadAll();
+            return true;
+          }catch(e){ toast('❌ '+e.message); return false; }
+        }
+      });
+    }
+    async function deleteProject(pid){
+      var p = projects.find(function(x){return x.id===pid;}); if(!p) return;
+      var n = projectCount(pid);
+      if (!confirm('刪除專案「'+p.label+'」？\n'+(n?('裡面引用的 '+n+' 筆 prompt 本體不會被刪掉。'):'目前是空的。'))) return;
+      try{
+        await api('/api/items/'+pid,{method:'DELETE'});
+        toast('✓ 已刪除專案');
+        if (view==='project' && viewProjectId===pid) { view='root'; viewProjectId=null; }
+        await reloadAll();
+      }catch(e){ toast('❌ '+e.message); }
+    }
+    async function toggleFav(id){
+      var it=(cache.mj||[]).find(function(x){return x.id===id;}); if(!it) return;
+      var d=Object.assign({}, it.data||{}, { fav: !(it.data&&it.data.fav) });
+      try{
+        await api('/api/items/'+id,{method:'PUT',body:JSON.stringify({data:d})});
+        it.data=d;
+        toast(d.fav ? '❤️ 已加入常用' : '已取消常用');
+        renderProjectBar(); render();
+      }catch(e){ toast('❌ '+e.message); }
+    }
+    async function useInProject(id){
+      if (!projects.length){ toast('先按上方「＋ 新增專案」建立一個專案'); return; }
+      var it=(cache.mj||[]).find(function(x){return x.id===id;}); if(!it) return;
+      openModal({
+        title:'加入專案（正在使用）',
+        fields:[{key:'pid', label:'選擇專案', type:'select',
+          options: projects.map(function(p){ return {value:p.id, label:p.label}; }),
+          value: projects[0].id }],
+        okLabel:'加入',
+        onOk: async function(v){
+          var pid = v.pid; if(!pid){ toast('請選專案'); return false; }
+          var arr = ((it.data&&it.data.projects)||[]).slice();
+          if (arr.indexOf(pid)>=0){ toast('已經在這個專案裡了'); return true; }
+          arr.push(pid);
+          var d=Object.assign({}, it.data||{}, { projects: arr });
+          try{
+            await api('/api/items/'+id,{method:'PUT',body:JSON.stringify({data:d})});
+            it.data=d;
+            var p=projects.find(function(x){return x.id===pid;});
+            toast('✓ 已加入「'+(p?p.label:'專案')+'」');
+            renderProjectBar(); render();
+            return true;
+          }catch(e){ toast('❌ '+e.message); return false; }
+        }
+      });
+    }
+    async function removeFromProject(id){
+      var it=(cache.mj||[]).find(function(x){return x.id===id;}); if(!it) return;
+      var arr = ((it.data&&it.data.projects)||[]).filter(function(x){ return x!==viewProjectId; });
+      var d=Object.assign({}, it.data||{}, { projects: arr });
+      try{
+        await api('/api/items/'+id,{method:'PUT',body:JSON.stringify({data:d})});
+        it.data=d;
+        toast('已移出此專案（本體還在原資料夾）');
+        renderProjectBar(); render();
+      }catch(e){ toast('❌ '+e.message); }
     }
 
     // 只回傳目前分頁（MJ 或 NB）的資料夾
@@ -417,6 +552,27 @@
           '</div>';
         return;
       }
+      if (view==='fav'){
+        box.innerHTML =
+          '<button class="crumb-back" id="crumb-back" type="button"><span class="arr">←</span>回到全部資料夾</button>'+
+          '<div class="crumb-folder">'+
+            '<div class="name">❤️<span>常用 Prompt</span></div>'+
+            '<div class="cnt">'+favCount()+' 筆</div>'+
+          '</div>';
+        var bk0 = $('#crumb-back'); if(bk0) bk0.addEventListener('click', goRoot);
+        return;
+      }
+      if (view==='project'){
+        var pj = projects.find(function(x){return x.id===viewProjectId;});
+        box.innerHTML =
+          '<button class="crumb-back" id="crumb-back" type="button"><span class="arr">←</span>回到全部資料夾</button>'+
+          '<div class="crumb-folder">'+
+            '<div class="name">📌<span>'+esc(pj?pj.label:'專案')+'</span></div>'+
+            '<div class="cnt">'+projectCount(viewProjectId)+' 筆 · 此專案正在使用的 prompt</div>'+
+          '</div>';
+        var bk1 = $('#crumb-back'); if(bk1) bk1.addEventListener('click', goRoot);
+        return;
+      }
       if (view==='root'){
         box.innerHTML =
           '<div class="crumb-root">'+
@@ -441,8 +597,8 @@
     }
 
     function goRoot(){
-      view='root'; viewFolderId=null;
-      renderCrumb(); render();
+      view='root'; viewFolderId=null; viewProjectId=null;
+      renderProjectBar(); renderCrumb(); render();
       window.scrollTo({top:$('#crumb').offsetTop-80,behavior:'smooth'});
     }
     function enterFolder(id){
@@ -494,6 +650,27 @@
             '</div>'+
           '</div>';
         }).join('');
+        return;
+      }
+
+      // ❤️ 常用視圖
+      if (view==='fav'){
+        var favs=(cache.mj||[]).filter(function(it){ return it.data && it.data.fav; });
+        favs.sort(sortFn);
+        $('#count').textContent = favs.length+' 筆';
+        box.innerHTML = favs.length
+          ? favs.map(function(it){ return promptCardHtml(it,'fav'); }).join('')
+          : '<div class="h-empty" style="grid-column:1/-1">還沒有按過愛心。在卡片縮圖左上角按 ♡ 加入常用。</div>';
+        return;
+      }
+      // 📌 專案視圖
+      if (view==='project'){
+        var pjItems=(cache.mj||[]).filter(function(it){ return ((it.data&&it.data.projects)||[]).indexOf(viewProjectId)>=0; });
+        pjItems.sort(sortFn);
+        $('#count').textContent = pjItems.length+' 筆';
+        box.innerHTML = pjItems.length
+          ? pjItems.map(function(it){ return promptCardHtml(it,'project'); }).join('')
+          : '<div class="h-empty" style="grid-column:1/-1">這個專案還沒有 prompt。到資料夾裡按卡片的「📌 使用」加入。</div>';
         return;
       }
 
@@ -576,31 +753,43 @@
         box.innerHTML='<div class="h-empty" style="grid-column:1/-1">這個資料夾還沒有內容，從上面新增一筆吧。</div>';
         return;
       }
-      box.innerHTML=items.map(function(it){
-        var d=it.data||{};
-        var imgs=getImages(d);
-        var when=new Date(it.updated_at||it.created_at).toLocaleString('zh-TW',{month:'numeric',day:'numeric'});
-        var by=it.created_by?esc(it.created_by):'';
-        var tags=(d.tags||[]).slice(0,4).map(function(g){return '<span class="chip">'+esc(g)+'</span>';}).join('');
-        var thumb = imgs.length
-          ? '<div class="cv-thumb" data-id="'+it.id+'" style="background-image:url(\''+esc(imgs[0])+'\')" title="點擊看大圖">'+
-              (imgs.length>1 ? '<div class="cv-cnt">▦ '+imgs.length+'</div>' : '')+
-            '</div>'
-          : '<div class="cv-thumb empty">無圖</div>';
-        return '<div class="card-v" data-id="'+it.id+'">'+thumb+
-          '<div class="cv-body">'+
-            '<div class="cv-name'+(d.title?'':' empty')+'">'+esc(d.title||'未命名')+'</div>'+
-            '<div class="cv-meta"><span>'+when+'</span><span>'+by+'</span></div>'+
-            (tags?'<div class="cv-tags">'+tags+'</div>':'')+
-          '</div>'+
-          '<div class="cv-acts">'+
-            '<button class="btn sm primary copy">⧉ 複製 Prompt</button>'+
-            '<button class="btn sm move">移動</button>'+
-            '<button class="btn sm edit">✎</button>'+
-            '<button class="btn sm ghost danger del" title="刪除">✕</button>'+
-          '</div>'+
-        '</div>';
-      }).join('');
+      box.innerHTML=items.map(function(it){ return promptCardHtml(it,'folder'); }).join('');
+    }
+
+    // 共用：prompt 卡片（mode: 'folder' | 'project' | 'fav'）
+    function promptCardHtml(it, mode){
+      var d=it.data||{};
+      var imgs=getImages(d);
+      var when=new Date(it.updated_at||it.created_at).toLocaleString('zh-TW',{month:'numeric',day:'numeric'});
+      var by=it.created_by?esc(it.created_by):'';
+      var tags=(d.tags||[]).slice(0,4).map(function(g){return '<span class="chip">'+esc(g)+'</span>';}).join('');
+      var favBtn = '<button class="fav-btn'+(d.fav?' on':'')+'" type="button" title="'+(d.fav?'取消常用':'加入常用')+'">'+(d.fav?'❤':'♡')+'</button>';
+      var thumb = imgs.length
+        ? '<div class="cv-thumb" data-id="'+it.id+'" style="background-image:url(\''+esc(imgs[0])+'\')" title="點擊看大圖">'+favBtn+
+            (imgs.length>1 ? '<div class="cv-cnt">▦ '+imgs.length+'</div>' : '')+
+          '</div>'
+        : '<div class="cv-thumb empty">'+favBtn+'無圖</div>';
+      var acts = '<button class="btn sm primary copy">⧉ 複製 Prompt</button>';
+      if (mode==='project'){
+        acts += '<button class="btn sm unproj">移出專案</button>'+
+                '<button class="btn sm edit">✎</button>';
+      } else if (mode==='fav'){
+        acts += '<button class="btn sm use">📌 使用</button>'+
+                '<button class="btn sm edit">✎</button>';
+      } else { // folder
+        acts += '<button class="btn sm use">📌 使用</button>'+
+                '<button class="btn sm move">移動</button>'+
+                '<button class="btn sm edit">✎</button>'+
+                '<button class="btn sm ghost danger del" title="刪除">✕</button>';
+      }
+      return '<div class="card-v" data-id="'+it.id+'">'+thumb+
+        '<div class="cv-body">'+
+          '<div class="cv-name'+(d.title?'':' empty')+'">'+esc(d.title||'未命名')+'</div>'+
+          '<div class="cv-meta"><span>'+when+'</span><span>'+by+'</span></div>'+
+          (tags?'<div class="cv-tags">'+tags+'</div>':'')+
+        '</div>'+
+        '<div class="cv-acts">'+acts+'</div>'+
+      '</div>';
     }
 
     function folderCardHtml(id, label, count, isUncat){
@@ -795,8 +984,11 @@
       opts.fields.forEach(function(f){
         html += '<label>'+esc(f.label)+'</label>';
         if (f.type==='select') {
-          html += '<select data-key="'+f.key+'"><option value="">未分類</option>' +
-            currentFolders().map(function(ff){ return '<option value="'+esc(ff.id)+'"'+(ff.id===f.value?' selected':'')+'>'+esc(ff.label)+'</option>'; }).join('') + '</select>';
+          var optList = f.options
+            ? f.options
+            : [{value:'',label:'未分類'}].concat(currentFolders().map(function(ff){ return {value:ff.id,label:ff.label}; }));
+          html += '<select data-key="'+f.key+'">' +
+            optList.map(function(o){ return '<option value="'+esc(o.value)+'"'+(o.value===f.value?' selected':'')+'>'+esc(o.label)+'</option>'; }).join('') + '</select>';
         } else {
           html += '<input type="text" data-key="'+f.key+'" value="'+esc(f.value||'')+'" placeholder="'+esc(f.placeholder||'')+'" />';
         }
@@ -849,6 +1041,14 @@
 
     // 列表點擊（資料夾內的 prompt 卡片）
     $('#list').addEventListener('click',async function(e){
+      // ❤️ 愛心（要在 lightbox 之前攔截）
+      var fb = e.target.closest('.fav-btn');
+      if (fb){
+        e.stopPropagation();
+        var fcard = fb.closest('.card-v');
+        if (fcard) toggleFav(fcard.dataset.id);
+        return;
+      }
       var thumb = e.target.closest('.cv-thumb');
       if (thumb && !thumb.classList.contains('empty')){
         var id = thumb.dataset.id;
@@ -864,6 +1064,10 @@
       var d=it.data||{};
       if(e.target.classList.contains('copy')){
         navigator.clipboard.writeText(d.text||'').then(function(){toast('⧉ 已複製：'+(d.title||'提示詞'));});
+      } else if(e.target.classList.contains('use')){
+        useInProject(id);
+      } else if(e.target.classList.contains('unproj')){
+        removeFromProject(id);
       } else if(e.target.classList.contains('move')){
         moveItem(id);
       } else if(e.target.classList.contains('edit')){
