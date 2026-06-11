@@ -117,7 +117,7 @@
     /* 卡片被導引時短暫高亮 */
     .card-v.highlight,.card-folder.highlight{box-shadow:0 0 0 2px #ffd96b,0 0 30px rgba(255,217,107,.4)!important;border-color:#ffd96b!important}
 
-    /* ── 專案列（小橫向 chips，最上方）── */
+    /* ── 專案列（小橫向 chips，大標下方）── */
     .project-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 18px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.02)}
     .project-bar .pb-label{font-family:var(--fm);font-size:10.5px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-right:4px}
     .pchip{font-family:var(--fm);font-size:11.5px;letter-spacing:.04em;padding:7px 13px;border-radius:999px;background:var(--glass);border:1px solid var(--line);color:var(--text-2);cursor:pointer;transition:all .18s;display:inline-flex;align-items:center;gap:7px;user-select:none}
@@ -170,9 +170,6 @@
       <button class="tab" data-tab="nb">Nano Banana<span class="c" id="c-nb">0</span></button>
     </div>
 
-    <!-- 專案列（MJ 專用）：❤️ 常用 + 專案 chips -->
-    <div class="project-bar" id="project-bar" style="display:none"></div>
-
     <!-- Composer -->
     <section class="panel">
       <label>名稱 / 標題</label>
@@ -208,6 +205,9 @@
 
     <!-- 大標 / 返回 -->
     <div class="crumb-block" id="crumb"></div>
+
+    <!-- 專案列（MJ 專用）：❤️ 常用 + 專案 chips -->
+    <div class="project-bar" id="project-bar" style="display:none"></div>
 
     <!-- 工具列：排序 / 大小（無搜尋） -->
     <div class="toolbar-2">
